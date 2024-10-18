@@ -32,8 +32,24 @@ impl IsSecurityStateAware for CAP26AccountPath {
     }
 }
 
-impl CAP26AccountPath {
-    pub fn new(
+pub trait NewEntityPath: Sized {
+    fn new(
+        network_id: impl Into<NetworkID>,
+        key_kind: impl Into<CAP26KeyKind>,
+        index: impl Into<Hardened>,
+    ) -> Self;
+}
+pub trait NewEntityPathCheckingEntityKind: NewEntityPath {
+    fn from_quadruple(
+        network_id: NetworkID,
+        entity_kind: CAP26EntityKind,
+        key_kind: CAP26KeyKind,
+        index: Hardened,
+    ) -> Result<Self>;
+}
+
+impl NewEntityPath for CAP26AccountPath {
+    fn new(
         network_id: impl Into<NetworkID>,
         key_kind: impl Into<CAP26KeyKind>,
         index: impl Into<Hardened>,
@@ -45,7 +61,30 @@ impl CAP26AccountPath {
         }
     }
 }
+impl<T: HasEntityKind + NewEntityPath> NewEntityPathCheckingEntityKind for T {
+    fn from_quadruple(
+        network_id: NetworkID,
+        entity_kind: CAP26EntityKind,
+        key_kind: CAP26KeyKind,
+        index: Hardened,
+    ) -> Result<Self> {
+        if entity_kind != Self::entity_kind() {
+            return Err(CommonError::WrongEntityKind {
+                expected: Self::entity_kind(),
+                found: entity_kind,
+            });
+        }
+        Ok(Self::new(network_id, key_kind, index))
+    }
+}
 
+impl TryFrom<HDPath> for CAP26AccountPath {
+    type Error = CommonError;
+    fn try_from(path: HDPath) -> Result<Self> {
+        let (network_id, entity_kind, key_kind, index) = try_cap26_from_hd(&path)?;
+        Self::from_quadruple(network_id, entity_kind, key_kind, index)
+    }
+}
 impl HasSampleValues for CAP26AccountPath {
     fn sample() -> Self {
         Self::new(
@@ -98,24 +137,6 @@ impl CAP26AccountPath {
 impl HasEntityKind for CAP26AccountPath {
     fn entity_kind() -> CAP26EntityKind {
         CAP26EntityKind::Account
-    }
-}
-
-impl TryFrom<HDPath> for CAP26AccountPath {
-    type Error = CommonError;
-    fn try_from(path: HDPath) -> Result<Self> {
-        let (network_id, entity_kind, key_kind, index) = try_cap26_from_hd(&path)?;
-        if entity_kind != Self::entity_kind() {
-            return Err(CommonError::WrongEntityKind {
-                expected: Self::entity_kind(),
-                found: entity_kind,
-            });
-        }
-        Ok(Self {
-            network_id,
-            key_kind,
-            index,
-        })
     }
 }
 
