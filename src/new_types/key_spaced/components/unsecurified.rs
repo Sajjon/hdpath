@@ -8,6 +8,7 @@ use crate::prelude::*;
     PartialOrd,
     Ord,
     Hash,
+    EnumAsInner,
     Display,
     MoreDebug,
     DeserializeFromStr,
