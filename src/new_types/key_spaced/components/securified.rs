@@ -1,3 +1,5 @@
+use serde_with::DeserializeFromStr;
+
 use crate::prelude::*;
 
 #[derive(
@@ -11,6 +13,8 @@ use crate::prelude::*;
     Deref,
     Mul,
     AsRef,
+    DeserializeFromStr,
+    SerializeDisplay,
     derive_more::Display,
     derive_more::Debug,
 )]
@@ -57,6 +61,8 @@ impl FromStr for SecurifiedU30 {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::json;
+
     use super::*;
 
     type Sut = SecurifiedU30;
@@ -146,15 +152,15 @@ mod tests {
     #[test]
     fn from_global() {
         assert_eq!(
-            SecurifiedU30::from_global_key_space(GLOBAL_OFFSET_SECURIFIED + 1337).unwrap(),
-            SecurifiedU30::from_local_key_space(1337).unwrap()
+            Sut::from_global_key_space(GLOBAL_OFFSET_SECURIFIED + 1337).unwrap(),
+            Sut::from_local_key_space(1337).unwrap()
         );
     }
 
     #[test]
     fn index_in_local_key_space() {
         assert_eq!(
-            SecurifiedU30::from_global_key_space(GLOBAL_OFFSET_SECURIFIED + 1337)
+            Sut::from_global_key_space(GLOBAL_OFFSET_SECURIFIED + 1337)
                 .unwrap()
                 .index_in_local_key_space(),
             1337
@@ -164,10 +170,30 @@ mod tests {
     #[test]
     fn into_global() {
         assert_eq!(
-            SecurifiedU30::from_local_key_space(1337)
+            Sut::from_local_key_space(1337)
                 .unwrap()
                 .into_global_key_space(),
             GLOBAL_OFFSET_SECURIFIED + 1337
         );
+    }
+
+    #[test]
+    fn json_roundtrip() {
+        let sut = Sut::from_local_key_space(1337).unwrap();
+
+        assert_json_value_eq_after_roundtrip(&sut, json!("1337S"));
+        assert_json_roundtrip(&sut);
+        assert_json_value_ne_after_roundtrip(&sut, json!("0S"));
+    }
+
+    #[test]
+    fn json_fails_for_invalid() {
+        assert_json_value_fails::<Sut>(json!(""));
+        assert_json_value_fails::<Sut>(json!("^"));
+        assert_json_value_fails::<Sut>(json!("S"));
+        assert_json_value_fails::<Sut>(json!("2"));
+        assert_json_value_fails::<Sut>(json!("2'"));
+        assert_json_value_fails::<Sut>(json!("2X"));
+        assert_json_value_fails::<Sut>(json!("   "));
     }
 }

@@ -4,9 +4,12 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+assert-json-diff = "2.0.2"
 derive_more = { version = "1.0.0", features = ["add", "as_ref", "debug", "deref", "deref_mut", "display", "from", "from_str", "mul"] }
 enum-as-inner = "0.6.1"
 num-traits = "0.2.19"
+pretty_assertions = "1.4.1"
 serde = { version = "1.0.210", features = ["derive"] }
+serde_json = { version = "1.0.129", features = ["preserve_order"] }
 serde_with = { version = "3.11.0", features = ["macros"] }
 thiserror = "1.0.64"
