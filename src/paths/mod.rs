@@ -1,20 +1,20 @@
 mod any_account_path;
 mod bip44_like_path;
-mod cap26_account_path;
-mod cap26_get_id_path;
-mod cap26_identity_path;
-mod cap26_path;
+mod cap26;
 mod derivation_path;
+mod from_bip32_str;
 mod hd_path;
+mod is_path_component_string_convertible;
+mod to_bip32_str;
 
 pub use any_account_path::*;
 pub use bip44_like_path::*;
-pub use cap26_account_path::*;
-pub use cap26_get_id_path::*;
-pub use cap26_identity_path::*;
-pub use cap26_path::*;
+pub use cap26::*;
 pub use derivation_path::*;
+pub use from_bip32_str::*;
 pub use hd_path::*;
+pub use is_path_component_string_convertible::*;
+pub use to_bip32_str::*;
 
 use crate::prelude::*;
 

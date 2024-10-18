@@ -3,8 +3,17 @@ pub enum CommonError {
     #[error("overflow")]
     Overflow,
 
+    #[error("InvalidLength")]
+    InvalidLength,
+
+    #[error("InvalidSuffix")]
+    InvalidSuffix,
+
     #[error("NonHardenedIndex")]
     NonHardenedIndex,
+
+    #[error("NonU32Str")]
+    NonU32Str,
 
     #[error("Index Securified expected Unsecurified")]
     IndexSecurifiedExpectedUnsecurified,

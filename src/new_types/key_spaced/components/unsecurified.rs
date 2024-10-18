@@ -30,3 +30,10 @@ impl TryFrom<HDPathComponent> for Unsecurified {
             .map_err(|_| CommonError::IndexSecurifiedExpectedUnsecurified)
     }
 }
+
+impl FromStr for Unsecurified {
+    type Err = CommonError;
+    fn from_str(_s: &str) -> Result<Self> {
+        todo!()
+    }
+}

@@ -11,6 +11,15 @@ impl HasOffsetFromGlobalKeySpace for SecurifiedU30 {
     }
 }
 
+impl FromLocalKeySpace for SecurifiedU30 {
+    /// 0^ => Ok(0)
+    /// 1^ => Ok(1)
+    /// 2^31 + 2^30 + 5 (5^) => Err
+    fn from_local_key_space(value: u32) -> Result<Self> {
+        U30::try_from(value).map(Self)
+    }
+}
+
 impl TryFrom<HDPathComponent> for SecurifiedU30 {
     type Error = CommonError;
 
@@ -18,5 +27,15 @@ impl TryFrom<HDPathComponent> for SecurifiedU30 {
         value
             .into_securified()
             .map_err(|_| CommonError::IndexUnsecurifiedExpectedSecurified)
+    }
+}
+impl IsPathComponentStringConvertible for SecurifiedU30 {
+    const CANONICAL_SUFFIX: &'static str = "S";
+    const NON_CANONICAL_SUFFIXES: &'static str = "^";
+}
+impl FromStr for SecurifiedU30 {
+    type Err = CommonError;
+    fn from_str(_s: &str) -> Result<Self> {
+        todo!()
     }
 }
