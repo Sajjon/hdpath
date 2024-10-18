@@ -153,7 +153,7 @@ mod tests {
     fn securified_from_local() {
         assert_eq!(
             Sut::from_local_key_space(0, true).unwrap(),
-            Sut::from_global_key_space(0 + GLOBAL_OFFSET_SECURIFIED).unwrap()
+            Sut::from_global_key_space(GLOBAL_OFFSET_SECURIFIED).unwrap()
         );
 
         assert_eq!(

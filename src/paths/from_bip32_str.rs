@@ -18,7 +18,6 @@ impl<T: IsPathComponentStringConvertible + FromLocalKeySpace> FromBIP32Str for T
                 return Err(CommonError::InvalidSuffix);
             }
         }
-
         let value: u32 = s[..s.len() - suffix_min_len]
             .parse()
             .map_err(|_| CommonError::NonU32Str)?;

@@ -2,6 +2,11 @@ use crate::prelude::*;
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Deref, AsRef)]
 pub struct U30(u32);
+impl U30 {
+    pub(crate) const unsafe fn new(value: u32) -> Self {
+        Self(value)
+    }
+}
 
 impl HasSampleValues for U30 {
     fn sample() -> Self {

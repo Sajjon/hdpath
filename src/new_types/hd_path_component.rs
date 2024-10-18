@@ -182,7 +182,7 @@ mod tests {
     fn unsecurified_hardened_from_local() {
         assert_eq!(
             Sut::from_local_key_space(0, true, false).unwrap(),
-            Sut::from_global_key_space(0 + GLOBAL_OFFSET_HARDENED).unwrap()
+            Sut::from_global_key_space(GLOBAL_OFFSET_HARDENED).unwrap()
         );
 
         assert_eq!(
@@ -195,7 +195,7 @@ mod tests {
     fn securified_hardened_from_local() {
         assert_eq!(
             Sut::from_local_key_space(0, true, true).unwrap(),
-            Sut::from_global_key_space(0 + GLOBAL_OFFSET_SECURIFIED).unwrap()
+            Sut::from_global_key_space(GLOBAL_OFFSET_SECURIFIED).unwrap()
         );
 
         assert_eq!(
@@ -224,7 +224,7 @@ mod tests {
     fn from_str_valid_0_hardened_canonical() {
         assert_eq!(
             "0H".parse::<Sut>().unwrap(),
-            Sut::from_global_key_space(0 + GLOBAL_OFFSET_HARDENED).unwrap()
+            Sut::from_global_key_space(GLOBAL_OFFSET_HARDENED).unwrap()
         );
     }
 
