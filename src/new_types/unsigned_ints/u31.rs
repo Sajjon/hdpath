@@ -3,6 +3,15 @@ use crate::prelude::*;
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Deref, AsRef)]
 pub struct U30(u32);
 
+impl HasSampleValues for U30 {
+    fn sample() -> Self {
+        Self::try_from(0).unwrap()
+    }
+    fn sample_other() -> Self {
+        Self::try_from(U30_MAX).unwrap()
+    }
+}
+
 impl TryFrom<u32> for U30 {
     type Error = CommonError;
 

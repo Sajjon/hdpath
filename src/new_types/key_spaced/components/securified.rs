@@ -1,5 +1,3 @@
-use serde_with::DeserializeFromStr;
-
 use crate::prelude::*;
 
 #[derive(
@@ -11,8 +9,6 @@ use crate::prelude::*;
     Ord,
     Hash,
     Deref,
-    Mul,
-    AsRef,
     DeserializeFromStr,
     SerializeDisplay,
     derive_more::Display,
@@ -22,6 +18,16 @@ use crate::prelude::*;
 #[display("{}", self.to_bip32_string())]
 #[debug("{}", self.to_bip32_string_debug())]
 pub struct SecurifiedU30(U30);
+
+impl HasSampleValues for SecurifiedU30 {
+    fn sample() -> Self {
+        Self::from_local_key_space(*U30::sample()).unwrap()
+    }
+
+    fn sample_other() -> Self {
+        Self::from_local_key_space(*U30::sample_other()).unwrap()
+    }
+}
 
 impl HasIndexInLocalKeySpace for SecurifiedU30 {}
 impl HasOffsetFromGlobalKeySpace for SecurifiedU30 {
@@ -66,6 +72,36 @@ mod tests {
     use super::*;
 
     type Sut = SecurifiedU30;
+
+    #[test]
+    fn equality() {
+        assert_eq!(Sut::sample(), Sut::sample(),);
+        assert_eq!(Sut::sample_other(), Sut::sample_other(),);
+    }
+
+    #[test]
+    fn inequality() {
+        assert_ne!(Sut::sample(), Sut::sample_other(),);
+    }
+
+    #[test]
+    fn ord() {
+        assert!(Sut::sample() < Sut::sample_other());
+    }
+
+    #[test]
+    fn hash() {
+        assert_eq!(
+            HashSet::<Sut>::from_iter([
+                Sut::sample(),
+                Sut::sample(),
+                Sut::sample_other(),
+                Sut::sample_other(),
+            ])
+            .len(),
+            2
+        )
+    }
 
     #[test]
     fn from_str_valid_canonical_0() {
