@@ -1,0 +1,12 @@
+[package]
+name = "hdindex"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+derive_more = { version = "1.0.0", features = ["add", "as_ref", "debug", "deref", "deref_mut", "display", "from", "from_str", "mul"] }
+enum-as-inner = "0.6.1"
+num-traits = "0.2.19"
+serde = { version = "1.0.210", features = ["derive"] }
+serde_with = { version = "3.11.0", features = ["macros"] }
+thiserror = "1.0.64"
