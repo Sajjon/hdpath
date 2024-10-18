@@ -142,4 +142,32 @@ mod tests {
         assert!("1X".parse::<Sut>().is_err());
         assert!("987654321987654321S".parse::<Sut>().is_err());
     }
+
+    #[test]
+    fn from_global() {
+        assert_eq!(
+            SecurifiedU30::from_global_key_space(GLOBAL_OFFSET_SECURIFIED + 1337).unwrap(),
+            SecurifiedU30::from_local_key_space(1337).unwrap()
+        );
+    }
+
+    #[test]
+    fn index_in_local_key_space() {
+        assert_eq!(
+            SecurifiedU30::from_global_key_space(GLOBAL_OFFSET_SECURIFIED + 1337)
+                .unwrap()
+                .index_in_local_key_space(),
+            1337
+        );
+    }
+
+    #[test]
+    fn into_global() {
+        assert_eq!(
+            SecurifiedU30::from_local_key_space(1337)
+                .unwrap()
+                .into_global_key_space(),
+            GLOBAL_OFFSET_SECURIFIED + 1337
+        );
+    }
 }
