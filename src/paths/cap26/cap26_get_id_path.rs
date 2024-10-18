@@ -81,6 +81,19 @@ mod tests {
     }
 
     #[test]
+    fn from_str_non_canonical() {
+        assert_eq!(Sut::from_str("m/44'/1022'/365'").unwrap(), Sut::default());
+    }
+
+    #[test]
+    fn equality_from_diff_string() {
+        assert_eq!(
+            Sut::from_str("m/44H/1022H/365H").unwrap(),
+            Sut::from_str("m/44'/1022'/365'").unwrap()
+        );
+    }
+
+    #[test]
     fn from_str_canonical_uppercase() {
         assert_eq!(Sut::from_str("M/44H/1022H/365H").unwrap(), Sut::default());
     }
