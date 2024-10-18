@@ -35,7 +35,70 @@ impl IsPathComponentStringConvertible for SecurifiedU30 {
 }
 impl FromStr for SecurifiedU30 {
     type Err = CommonError;
-    fn from_str(_s: &str) -> Result<Self> {
-        todo!()
+    fn from_str(s: &str) -> Result<Self> {
+        Self::from_bip32_string(s)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    type Sut = SecurifiedU30;
+
+    #[test]
+    fn from_str_valid_canonical_0() {
+        assert_eq!(
+            "0S".parse::<Sut>().unwrap(),
+            Sut::from_local_key_space(0).unwrap()
+        );
+    }
+
+    #[test]
+    fn from_str_valid_canonical_1() {
+        assert_eq!(
+            "1S".parse::<Sut>().unwrap(),
+            Sut::from_local_key_space(1).unwrap()
+        );
+    }
+
+    #[test]
+    fn from_str_valid_canonical_max() {
+        assert_eq!(
+            "1073741823S".parse::<Sut>().unwrap(),
+            Sut::from_local_key_space(U30_MAX).unwrap()
+        );
+    }
+
+    #[test]
+    fn from_str_valid_uncanonical_0() {
+        assert_eq!(
+            "0^".parse::<Sut>().unwrap(),
+            Sut::from_local_key_space(0).unwrap()
+        );
+    }
+
+    #[test]
+    fn from_str_valid_uncanonical_1() {
+        assert_eq!(
+            "1^".parse::<Sut>().unwrap(),
+            Sut::from_local_key_space(1).unwrap()
+        );
+    }
+
+    #[test]
+    fn from_str_valid_uncanonical_max() {
+        assert_eq!(
+            "1073741823^".parse::<Sut>().unwrap(),
+            Sut::from_local_key_space(U30_MAX).unwrap()
+        );
+    }
+
+    #[test]
+    fn from_str_invalid() {
+        assert!("".parse::<Sut>().is_err());
+        assert!("foobar".parse::<Sut>().is_err());
+        assert!("1X".parse::<Sut>().is_err());
+        assert!("987654321987654321S".parse::<Sut>().is_err());
     }
 }
