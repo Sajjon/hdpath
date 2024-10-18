@@ -8,6 +8,15 @@ impl U31 {
     }
 }
 
+impl HasSampleValues for U31 {
+    fn sample() -> Self {
+        Self::try_from(31).unwrap()
+    }
+    fn sample_other() -> Self {
+        Self::try_from(U31_MAX).unwrap()
+    }
+}
+
 impl TryFrom<u32> for U31 {
     type Error = CommonError;
 
@@ -25,6 +34,36 @@ mod tests {
     use super::*;
 
     type Sut = U30;
+
+    #[test]
+    fn equality() {
+        assert_eq!(Sut::sample(), Sut::sample(),);
+        assert_eq!(Sut::sample_other(), Sut::sample_other(),);
+    }
+
+    #[test]
+    fn inequality() {
+        assert_ne!(Sut::sample(), Sut::sample_other(),);
+    }
+
+    #[test]
+    fn ord() {
+        assert!(Sut::sample() < Sut::sample_other());
+    }
+
+    #[test]
+    fn hash() {
+        assert_eq!(
+            HashSet::<Sut>::from_iter([
+                Sut::sample(),
+                Sut::sample(),
+                Sut::sample_other(),
+                Sut::sample_other(),
+            ])
+            .len(),
+            2
+        )
+    }
 
     #[test]
     fn try_from_valid() {

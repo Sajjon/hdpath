@@ -4,14 +4,14 @@ mod u31;
 pub use u30::*;
 pub use u31::*;
 
-pub const U30_MAX: u32 = 2u32.pow(30) - 1;
-pub const U31_MAX: u32 = 2u32.pow(31) - 1;
+pub const GLOBAL_OFFSET_HARDENED: u32 = 2u32.pow(31);
+
+pub const U30_MAX: u32 = LOCAL_OFFSET_SECURIFIED - 1;
+pub const U31_MAX: u32 = GLOBAL_OFFSET_HARDENED - 1;
 pub const U32_MAX: u32 = u32::MAX;
 
-pub const GLOBAL_OFFSET_HARDENED: u32 = U31_MAX;
-
 /// Does NOT also offset by `GLOBAL_OFFSET_HARDENED`
-pub const LOCAL_OFFSET_SECURIFIED: u32 = U30_MAX;
+pub const LOCAL_OFFSET_SECURIFIED: u32 = 2u32.pow(30);
 
 pub const GLOBAL_OFFSET_SECURIFIED: u32 = GLOBAL_OFFSET_HARDENED + LOCAL_OFFSET_SECURIFIED;
 
@@ -37,12 +37,12 @@ mod tests {
 
     #[test]
     fn global_offset_hardened() {
-        assert_eq!(GLOBAL_OFFSET_HARDENED, U31_MAX);
+        assert_eq!(GLOBAL_OFFSET_HARDENED - 1, U31_MAX);
     }
 
     #[test]
     fn local_offset_securified() {
-        assert_eq!(LOCAL_OFFSET_SECURIFIED, U30_MAX);
+        assert_eq!(LOCAL_OFFSET_SECURIFIED - 1, U30_MAX);
     }
 
     #[test]

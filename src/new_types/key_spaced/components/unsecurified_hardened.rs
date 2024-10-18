@@ -9,7 +9,6 @@ use crate::prelude::*;
     Ord,
     Hash,
     Deref,
-    Mul,
     AsRef,
     DeserializeFromStr,
     SerializeDisplay,

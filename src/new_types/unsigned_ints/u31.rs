@@ -5,7 +5,7 @@ pub struct U30(u32);
 
 impl HasSampleValues for U30 {
     fn sample() -> Self {
-        Self::try_from(0).unwrap()
+        Self::try_from(30).unwrap()
     }
     fn sample_other() -> Self {
         Self::try_from(U30_MAX).unwrap()
@@ -29,6 +29,36 @@ mod tests {
     use super::*;
 
     type Sut = U31;
+
+    #[test]
+    fn equality() {
+        assert_eq!(Sut::sample(), Sut::sample(),);
+        assert_eq!(Sut::sample_other(), Sut::sample_other(),);
+    }
+
+    #[test]
+    fn inequality() {
+        assert_ne!(Sut::sample(), Sut::sample_other(),);
+    }
+
+    #[test]
+    fn ord() {
+        assert!(Sut::sample() < Sut::sample_other());
+    }
+
+    #[test]
+    fn hash() {
+        assert_eq!(
+            HashSet::<Sut>::from_iter([
+                Sut::sample(),
+                Sut::sample(),
+                Sut::sample_other(),
+                Sut::sample_other(),
+            ])
+            .len(),
+            2
+        )
+    }
 
     #[test]
     fn try_from_valid() {
