@@ -186,11 +186,18 @@ mod tests {
     }
 
     #[test]
-    fn from_global() {
+    fn from_global_valid() {
         assert_eq!(
             Sut::from_global_key_space(GLOBAL_OFFSET_SECURIFIED + 1337).unwrap(),
             Sut::from_local_key_space(1337).unwrap()
         );
+    }
+
+    #[test]
+    fn from_global_invalid() {
+        assert!(Sut::from_global_key_space(0).is_err());
+        assert!(Sut::from_global_key_space(GLOBAL_OFFSET_HARDENED).is_err());
+        assert!(Sut::from_global_key_space(GLOBAL_OFFSET_SECURIFIED - 1).is_err());
     }
 
     #[test]
