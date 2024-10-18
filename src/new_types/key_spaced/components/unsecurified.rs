@@ -65,6 +65,16 @@ impl From<UnsecurifiedHardened> for Unsecurified {
     }
 }
 
+impl Unsecurified {
+    pub fn from_local_key_space(value: u32, is_hardened: bool) -> Result<Self> {
+        if is_hardened {
+            UnsecurifiedHardened::from_local_key_space(value).map(Self::Hardened)
+        } else {
+            Unhardened::from_local_key_space(value).map(Self::Unhardened)
+        }
+    }
+}
+
 impl TryFrom<HDPathComponent> for Unsecurified {
     type Error = CommonError;
 
@@ -126,6 +136,32 @@ mod tests {
             .len(),
             2
         )
+    }
+
+    #[test]
+    fn unhardened_from_local() {
+        assert_eq!(
+            Sut::from_local_key_space(0, false).unwrap(),
+            Sut::from_global_key_space(0).unwrap()
+        );
+
+        assert_eq!(
+            Sut::from_local_key_space(3, false).unwrap(),
+            Sut::from_global_key_space(3).unwrap()
+        );
+    }
+
+    #[test]
+    fn hardened_from_local() {
+        assert_eq!(
+            Sut::from_local_key_space(0, true).unwrap(),
+            Sut::from_global_key_space(0 + GLOBAL_OFFSET_HARDENED).unwrap()
+        );
+
+        assert_eq!(
+            Sut::from_local_key_space(3, true).unwrap(),
+            Sut::from_global_key_space(3 + GLOBAL_OFFSET_HARDENED).unwrap()
+        );
     }
 
     #[test]
