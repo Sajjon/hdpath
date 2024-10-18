@@ -24,6 +24,27 @@ impl HDPath {
     }
 }
 
+pub fn try_cap26_from_hd(
+    hd_path: &HDPath,
+) -> Result<(NetworkID, CAP26EntityKind, CAP26KeyKind, Hardened)> {
+    let components = &hd_path.0;
+    if components.len() != 6 {
+        return Err(CommonError::InvalidLength);
+    }
+    if components[0] != PURPOSE {
+        return Err(CommonError::InvalidPurpose);
+    }
+    if components[1] != COIN_TYPE {
+        return Err(CommonError::InvalidCoinType);
+    }
+    let network_id = NetworkID::try_from(components[2].index_in_local_key_space())?;
+    let entity_kind = CAP26EntityKind::try_from(components[3].index_in_local_key_space())?;
+    let key_kind = CAP26KeyKind::try_from(components[4].index_in_local_key_space())?;
+    let hardened = Hardened::try_from(components[5])?;
+
+    Ok((network_id, entity_kind, key_kind, hardened))
+}
+
 impl FromBIP32Str for HDPath {
     fn from_bip32_string(s: &str) -> Result<Self> {
         let mut s = s;

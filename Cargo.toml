@@ -12,5 +12,7 @@ num-traits = "0.2.19"
 pretty_assertions = "1.4.1"
 serde = { version = "1.0.210", features = ["derive"] }
 serde_json = { version = "1.0.129", features = ["preserve_order"] }
+serde_repr = "0.1.19"
 serde_with = { version = "3.11.0", features = ["macros"] }
+strum = { version = "0.26.3", features = ["derive", "strum_macros"] }
 thiserror = "1.0.64"

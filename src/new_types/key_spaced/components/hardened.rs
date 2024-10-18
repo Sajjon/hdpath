@@ -69,6 +69,9 @@ impl FromBIP32Str for Hardened {
 }
 
 impl Hardened {
+    pub fn from_local_key_space_unsecurified(value: u32) -> Result<Self> {
+        Self::from_local_key_space(value, false)
+    }
     pub fn from_local_key_space(value: u32, is_securified: bool) -> Result<Self> {
         if is_securified {
             SecurifiedU30::from_local_key_space(value).map(Self::Securified)

@@ -27,6 +27,11 @@ impl From<GetIDPath> for HDPath {
         Self::new(Vec::from_iter(GetIDPath::PATH))
     }
 }
+impl GetIDPath {
+    fn to_hd_path(&self) -> HDPath {
+        HDPath::from(self.clone())
+    }
+}
 impl TryFrom<HDPath> for GetIDPath {
     type Error = CommonError;
     fn try_from(path: HDPath) -> Result<Self> {
@@ -38,11 +43,7 @@ impl TryFrom<HDPath> for GetIDPath {
         }
     }
 }
-impl GetIDPath {
-    fn to_hd_path(&self) -> HDPath {
-        HDPath::from(self.clone())
-    }
-}
+
 impl ToBIP32Str for GetIDPath {
     fn to_bip32_string(&self) -> String {
         self.to_hd_path().to_bip32_string()
@@ -59,13 +60,15 @@ impl FromBIP32Str for GetIDPath {
 impl FromStr for GetIDPath {
     type Err = CommonError;
 
-    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+    fn from_str(s: &str) -> Result<Self> {
         Self::from_bip32_string(s)
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use serde_json::json;
+
     use super::*;
 
     type Sut = GetIDPath;
@@ -111,5 +114,25 @@ mod tests {
     #[test]
     fn from_str_trailing_slash() {
         assert_eq!(Sut::from_str("m/44H/1022H/365H/").unwrap(), Sut::default());
+    }
+
+    #[test]
+    fn json_roundtrip() {
+        let sut = Sut::default();
+
+        assert_json_value_eq_after_roundtrip(&sut, json!("m/44H/1022H/365H"));
+        assert_json_roundtrip(&sut);
+    }
+
+    #[test]
+    fn json_fails_for_invalid() {
+        assert_json_value_fails::<Sut>(json!(""));
+        assert_json_value_fails::<Sut>(json!("foobar"));
+        assert_json_value_fails::<Sut>(json!("^"));
+        assert_json_value_fails::<Sut>(json!("S"));
+        assert_json_value_fails::<Sut>(json!("2"));
+        assert_json_value_fails::<Sut>(json!("2'"));
+        assert_json_value_fails::<Sut>(json!("2X"));
+        assert_json_value_fails::<Sut>(json!("   "));
     }
 }
