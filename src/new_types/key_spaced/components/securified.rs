@@ -1,7 +1,22 @@
 use crate::prelude::*;
 
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Deref, Mul, AsRef)]
+#[derive(
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    Hash,
+    Deref,
+    Mul,
+    AsRef,
+    derive_more::Display,
+    derive_more::Debug,
+)]
 #[deref(forward)]
+#[display("{}", self.to_bip32_string())]
+#[debug("{}", self.to_bip32_string_debug())]
 pub struct SecurifiedU30(U30);
 
 impl HasIndexInLocalKeySpace for SecurifiedU30 {}
@@ -91,6 +106,32 @@ mod tests {
         assert_eq!(
             "1073741823^".parse::<Sut>().unwrap(),
             Sut::from_local_key_space(U30_MAX).unwrap()
+        );
+    }
+
+    #[test]
+    fn display_0() {
+        assert_eq!(format!("{}", Sut::from_local_key_space(0).unwrap()), "0S");
+    }
+
+    #[test]
+    fn debug_0() {
+        assert_eq!(format!("{:?}", Sut::from_local_key_space(0).unwrap()), "0^");
+    }
+
+    #[test]
+    fn display_max() {
+        assert_eq!(
+            format!("{}", Sut::from_local_key_space(U30_MAX).unwrap()),
+            "1073741823S"
+        );
+    }
+
+    #[test]
+    fn debug_max() {
+        assert_eq!(
+            format!("{:?}", Sut::from_local_key_space(U30_MAX).unwrap()),
+            "1073741823^"
         );
     }
 
