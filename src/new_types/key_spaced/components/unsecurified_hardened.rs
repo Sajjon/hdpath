@@ -55,7 +55,11 @@ impl IsPathComponentStringConvertible for UnsecurifiedHardened {
     const NON_CANONICAL_SUFFIXES: &'static str = UNSECURIFIED_HARDENED_NON_CANONICAL_SUFFIX;
 }
 
-impl HasIndexInLocalKeySpace for UnsecurifiedHardened {}
+impl HasIndexInLocalKeySpace for UnsecurifiedHardened {
+    fn index_in_local_key_space(&self) -> u32 {
+        **self
+    }
+}
 impl HasOffsetFromGlobalKeySpace for UnsecurifiedHardened {
     fn offset_from_global_key_space() -> u32 {
         GLOBAL_OFFSET_HARDENED

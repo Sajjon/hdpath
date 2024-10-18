@@ -29,7 +29,11 @@ impl HasSampleValues for SecurifiedU30 {
     }
 }
 
-impl HasIndexInLocalKeySpace for SecurifiedU30 {}
+impl HasIndexInLocalKeySpace for SecurifiedU30 {
+    fn index_in_local_key_space(&self) -> u32 {
+        **self
+    }
+}
 impl HasOffsetFromGlobalKeySpace for SecurifiedU30 {
     fn offset_from_global_key_space() -> u32 {
         GLOBAL_OFFSET_SECURIFIED

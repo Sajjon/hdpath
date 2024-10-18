@@ -34,7 +34,11 @@ impl HasSampleValues for Unhardened {
     }
 }
 
-impl HasIndexInLocalKeySpace for Unhardened {}
+impl HasIndexInLocalKeySpace for Unhardened {
+    fn index_in_local_key_space(&self) -> u32 {
+        **self
+    }
+}
 
 impl HasOffsetFromGlobalKeySpace for Unhardened {
     fn offset_from_global_key_space() -> u32 {

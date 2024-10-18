@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub trait FromGlobalKeySpace: HasOffsetFromGlobalKeySpace + Sized {
+pub trait FromGlobalKeySpace: Sized {
     fn from_global_key_space(value: u32) -> Result<Self>;
 }
 

@@ -11,7 +11,7 @@ pub mod prelude {
     pub(crate) use enum_as_inner::EnumAsInner;
     pub(crate) use serde_with::{DeserializeFromStr, SerializeDisplay};
 
-    pub(crate) use std::{ops::Deref, str::FromStr};
+    pub(crate) use std::str::FromStr;
 
     #[cfg(test)]
     pub(crate) use std::collections::HashSet;
