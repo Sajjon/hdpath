@@ -24,6 +24,10 @@ pub enum Unsecurified {
     Hardened(UnsecurifiedHardened),
 }
 
+impl Unsecurified {
+    pub const MAX: u32 = GLOBAL_OFFSET_SECURIFIED - 1;
+}
+
 impl HasSampleValues for Unsecurified {
     fn sample() -> Self {
         Self::Unhardened(Unhardened::sample())
@@ -155,6 +159,31 @@ mod tests {
             Sut::from_local_key_space(3u32, false).unwrap(),
             Sut::from_global_key_space(3).unwrap()
         );
+    }
+
+    #[test]
+    fn from_global_key_space_max() {
+        assert_eq!(
+            Sut::from_global_key_space(Sut::MAX).unwrap(),
+            Sut::from_global_key_space(GLOBAL_OFFSET_SECURIFIED - 1).unwrap()
+        );
+    }
+
+    #[test]
+    fn from_global_key_space_max_into_local() {
+        assert_eq!(
+            Sut::from_global_key_space(Sut::MAX)
+                .unwrap()
+                .map_to_local_key_space(),
+            KeySpaceWithLocalIndex::Unsecurified(UnsecurifiedKeySpaceWithLocalIndex::Hardened(
+                U30::try_from(U30::MAX).unwrap()
+            ))
+        );
+    }
+
+    #[test]
+    fn from_global_key_space_max_plus_one_is_err() {
+        assert!(matches!(Sut::from_global_key_space(Sut::MAX + 1), Err(_)));
     }
 
     #[test]
