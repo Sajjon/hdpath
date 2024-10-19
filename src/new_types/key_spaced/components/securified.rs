@@ -270,7 +270,6 @@ mod tests {
         assert_eq!(
             Sut::from_global_key_space(GLOBAL_OFFSET_SECURIFIED + 1337)
                 .unwrap()
-                .map_to_local_key_space()
                 .key_space(),
             KeySpace::Securified
         );

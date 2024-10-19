@@ -183,9 +183,15 @@ mod tests {
     }
 
     #[test]
-    fn to_string() {
+    fn display() {
         let sut = Sut::sample();
         assert_eq!(format!("{}", sut), "m/44H/1022H/1H/525H/1460H/0H");
+    }
+
+    #[test]
+    fn debug() {
+        let sut = Sut::sample();
+        assert_eq!(format!("{:?}", sut), "m/44'/1022'/1'/525'/1460'/0'");
     }
 
     #[test]
@@ -198,6 +204,17 @@ mod tests {
     fn from_str() {
         let sut = Sut::from_str("m/44H/1022H/1H/525H/1460H/0H").unwrap();
         assert_eq!(sut, Sut::sample());
+    }
+
+    #[test]
+    fn from_str_persona() {
+        assert!(matches!(
+            Sut::from_str("m/44H/1022H/1H/618/1460H/0H"),
+            Err(CommonError::WrongEntityKind {
+                expected: CAP26EntityKind::Account,
+                found: CAP26EntityKind::Identity
+            })
+        ))
     }
 
     #[test]
