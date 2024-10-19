@@ -182,6 +182,22 @@ mod tests {
     }
 
     #[test]
+    fn try_from_hd_path_component_successful() {
+        let sut = Sut::sample();
+        let from = HDPathComponent::Securified(sut);
+        assert_eq!(Sut::try_from(from).unwrap(), sut)
+    }
+
+    #[test]
+    fn try_from_hd_path_component_fail() {
+        let from = HDPathComponent::Unsecurified(Unsecurified::sample());
+        assert!(matches!(
+            Sut::try_from(from),
+            Err(CommonError::IndexUnsecurifiedExpectedSecurified)
+        ))
+    }
+
+    #[test]
     fn from_str_invalid() {
         assert!("".parse::<Sut>().is_err());
         assert!("foobar".parse::<Sut>().is_err());

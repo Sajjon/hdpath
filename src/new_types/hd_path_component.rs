@@ -58,18 +58,6 @@ impl FromGlobalKeySpace for HDPathComponent {
     }
 }
 
-impl From<Unsecurified> for HDPathComponent {
-    fn from(value: Unsecurified) -> Self {
-        Self::Unsecurified(value)
-    }
-}
-
-impl From<SecurifiedU30> for HDPathComponent {
-    fn from(value: SecurifiedU30) -> Self {
-        Self::Securified(value)
-    }
-}
-
 impl From<Hardened> for HDPathComponent {
     fn from(value: Hardened) -> Self {
         match value {
@@ -168,6 +156,12 @@ mod tests {
     }
 
     #[test]
+    fn map_to_local() {
+        let sut = Sut::Securified(SecurifiedU30::sample());
+        assert!(sut.map_to_local_key_space().key_space().is_securified())
+    }
+
+    #[test]
     fn unsecurified_unhardened_from_local() {
         assert_eq!(
             Sut::from_local_key_space(0u32, KeySpace::Unsecurified { is_hardened: false }).unwrap(),
@@ -191,6 +185,28 @@ mod tests {
             Sut::from_local_key_space(3u32, KeySpace::Unsecurified { is_hardened: true }).unwrap(),
             Sut::from_global_key_space(3 + GLOBAL_OFFSET_HARDENED).unwrap()
         );
+    }
+
+    #[test]
+    fn from_hardened() {
+        let sec = SecurifiedU30::sample();
+        let hardened = Hardened::Securified(sec);
+        assert_eq!(Sut::from(hardened), Sut::Securified(sec));
+    }
+
+    #[test]
+    fn map_to_global_securified() {
+        let sec = SecurifiedU30::sample();
+        let sut = Sut::Securified(sec);
+        assert_eq!(sut.map_to_global_key_space(), 30 + GLOBAL_OFFSET_SECURIFIED);
+    }
+
+    #[test]
+    fn from_local_key_space_securified() {
+        assert_eq!(
+            Sut::from_local_key_space(42u32, KeySpace::Securified).unwrap(),
+            Sut::securified(U30::try_from(42u32).unwrap())
+        )
     }
 
     #[test]

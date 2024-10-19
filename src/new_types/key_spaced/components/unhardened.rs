@@ -18,11 +18,6 @@ use crate::prelude::*;
 #[display("{}", self.to_bip32_string())]
 #[debug("{}", self.to_bip32_string_debug())]
 pub struct Unhardened(U31);
-impl Unhardened {
-    pub const fn new(value: U31) -> Self {
-        Self(value)
-    }
-}
 
 impl HasSampleValues for Unhardened {
     fn sample() -> Self {

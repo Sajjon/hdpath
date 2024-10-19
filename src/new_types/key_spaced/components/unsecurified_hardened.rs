@@ -34,10 +34,6 @@ impl UnsecurifiedHardened {
     pub const fn new(value: U30) -> Self {
         Self(value)
     }
-
-    pub fn new_from_global_key_space(value: u32) -> Result<Self> {
-        U30::try_from(value).map(Self::new)
-    }
 }
 impl FromLocalKeySpace for UnsecurifiedHardened {
     type Magnitude = U30;
@@ -242,6 +238,15 @@ mod tests {
                 .map_to_global_key_space(),
             GLOBAL_OFFSET_HARDENED + 1337
         );
+    }
+
+    #[test]
+    fn test_try_from_unsecurified() {
+        let from = Unsecurified::Unhardened(Unhardened::sample());
+        assert!(matches!(
+            Sut::try_from(from),
+            Err(CommonError::NonHardenedIndex)
+        ));
     }
 
     #[test]

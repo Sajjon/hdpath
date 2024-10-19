@@ -285,6 +285,23 @@ mod tests {
     }
 
     #[test]
+    fn try_from_hd_path_component_fail() {
+        let from = HDPathComponent::Securified(SecurifiedU30::sample());
+
+        assert!(matches!(
+            Sut::try_from(from),
+            Err(CommonError::IndexSecurifiedExpectedUnsecurified)
+        ))
+    }
+
+    #[test]
+    fn try_from_hd_path_component_success() {
+        let sut = Unsecurified::sample();
+        let from = HDPathComponent::Unsecurified(sut);
+        assert_eq!(Sut::try_from(from).unwrap(), sut)
+    }
+
+    #[test]
     fn into_global() {
         assert_eq!(
             Sut::from_global_key_space(1337)

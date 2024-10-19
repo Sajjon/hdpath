@@ -342,6 +342,14 @@ mod tests {
     }
 
     #[test]
+    fn try_from_hd_path_component_securified() {
+        let secu30 = SecurifiedU30::sample();
+        let sut = Sut::Securified(secu30);
+        let from = HDPathComponent::Securified(secu30);
+        assert_eq!(Sut::try_from(from).unwrap(), sut)
+    }
+
+    #[test]
     fn index_in_local_key_space_securified() {
         assert_eq!(
             Sut::from_global_key_space(1337 + GLOBAL_OFFSET_SECURIFIED)

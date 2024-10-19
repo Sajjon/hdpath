@@ -19,11 +19,6 @@ impl UnsecurifiedKeySpaceWithLocalIndex {
         }
     }
 }
-impl From<UnsecurifiedKeySpaceWithLocalIndex> for KeySpaceWithLocalIndex {
-    fn from(value: UnsecurifiedKeySpaceWithLocalIndex) -> Self {
-        Self::Unsecurified(value)
-    }
-}
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
 pub enum KeySpaceWithLocalIndex {
