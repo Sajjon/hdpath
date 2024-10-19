@@ -25,8 +25,10 @@ pub enum Unsecurified {
 }
 
 impl Unsecurified {
-    pub const MAX: u32 = GLOBAL_OFFSET_SECURIFIED - 1;
+    pub const MAX_LOCAL: u32 = GLOBAL_OFFSET_SECURIFIED - 1;
 }
+
+impl AddViaGlobalKeySpace for Unsecurified {}
 
 impl HasSampleValues for Unsecurified {
     fn sample() -> Self {
@@ -56,7 +58,7 @@ impl FromGlobalKeySpace for Unsecurified {
 }
 
 impl IsMappableToGlobalKeySpace for Unsecurified {
-    fn map_to_global_key_space(self) -> u32 {
+    fn map_to_global_key_space(&self) -> u32 {
         match self {
             Self::Unhardened(u) => u.map_to_global_key_space(),
             Self::Hardened(h) => h.map_to_global_key_space(),
@@ -164,7 +166,7 @@ mod tests {
     #[test]
     fn from_global_key_space_max() {
         assert_eq!(
-            Sut::from_global_key_space(Sut::MAX).unwrap(),
+            Sut::from_global_key_space(Sut::MAX_LOCAL).unwrap(),
             Sut::from_global_key_space(GLOBAL_OFFSET_SECURIFIED - 1).unwrap()
         );
     }
@@ -172,7 +174,7 @@ mod tests {
     #[test]
     fn from_global_key_space_max_into_local() {
         assert_eq!(
-            Sut::from_global_key_space(Sut::MAX)
+            Sut::from_global_key_space(Sut::MAX_LOCAL)
                 .unwrap()
                 .map_to_local_key_space(),
             KeySpaceWithLocalIndex::Unsecurified(UnsecurifiedKeySpaceWithLocalIndex::Hardened(
@@ -183,7 +185,7 @@ mod tests {
 
     #[test]
     fn from_global_key_space_max_plus_one_is_err() {
-        assert!(Sut::from_global_key_space(Sut::MAX + 1).is_err());
+        assert!(Sut::from_global_key_space(Sut::MAX_LOCAL + 1).is_err());
     }
 
     #[test]
@@ -378,5 +380,62 @@ mod tests {
         assert_json_value_fails::<Sut>(json!("2S"));
         assert_json_value_fails::<Sut>(json!("2X"));
         assert_json_value_fails::<Sut>(json!("   "));
+    }
+
+    #[test]
+    fn add_zero() {
+        let sut = Sut::from_global_key_space(42).unwrap();
+        assert_eq!(sut.checked_add_n_to_global(0u32).unwrap(), sut);
+    }
+
+    #[test]
+    fn add_zero_to_max_is_ok() {
+        let sut = Sut::from_global_key_space(Sut::MAX_LOCAL).unwrap();
+        assert_eq!(sut.checked_add_n_to_global(0u32).unwrap(), sut,);
+    }
+
+    #[test]
+    fn add_max_to_zero_is_ok() {
+        let sut = Sut::from_global_key_space(0).unwrap();
+        assert_eq!(
+            sut.checked_add_n_to_global(Sut::MAX_LOCAL).unwrap(),
+            Sut::from_global_key_space(Sut::MAX_LOCAL).unwrap()
+        );
+    }
+
+    #[test]
+    fn add_one() {
+        let sut = Sut::from_global_key_space(42).unwrap();
+        assert_eq!(
+            sut.checked_add_one_to_global().unwrap(),
+            Sut::from_global_key_space(43).unwrap()
+        );
+    }
+
+    #[test]
+    fn add_one_to_max_minus_1_is_max() {
+        let sut = Sut::from_global_key_space(Sut::MAX_LOCAL - 1).unwrap();
+        assert_eq!(
+            sut.checked_add_n_to_global(1u32).unwrap(),
+            Sut::from_global_key_space(Sut::MAX_LOCAL).unwrap()
+        );
+    }
+
+    #[test]
+    fn addition_overflow_base_max() {
+        let sut = Sut::from_global_key_space(Sut::MAX_LOCAL).unwrap();
+        assert!(matches!(
+            sut.checked_add_n_to_global(1u32),
+            Err(CommonError::Overflow)
+        ));
+    }
+
+    #[test]
+    fn addition_overflow_add_max() {
+        let sut = Sut::from_global_key_space(1).unwrap();
+        assert!(matches!(
+            sut.checked_add_n_to_global(Sut::MAX_LOCAL),
+            Err(CommonError::Overflow)
+        ));
     }
 }

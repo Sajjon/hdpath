@@ -20,10 +20,11 @@ use crate::prelude::*;
 pub struct Unhardened(U31);
 
 impl Unhardened {
-    pub const MAX: u32 = U31::MAX;
+    pub const MAX_LOCAL: u32 = U31::MAX;
 }
 
-impl CheckedAdd for Unhardened {}
+impl AddViaDeref for Unhardened {}
+impl AddSelfViaDeref for Unhardened {}
 
 impl HasSampleValues for Unhardened {
     fn sample() -> Self {
@@ -125,7 +126,7 @@ mod tests {
 
     #[test]
     fn try_from_u32_fail() {
-        assert!(Sut::try_from(Sut::MAX + 1).is_err());
+        assert!(Sut::try_from(Sut::MAX_LOCAL + 1).is_err());
     }
 
     #[test]
@@ -267,7 +268,7 @@ mod tests {
 
     #[test]
     fn add_zero_to_max_is_ok() {
-        let sut = Sut::from_local_key_space(Sut::MAX).unwrap();
+        let sut = Sut::from_local_key_space(Sut::MAX_LOCAL).unwrap();
         assert_eq!(
             sut.checked_add(&Sut::from_local_key_space(0u32).unwrap())
                 .unwrap(),
@@ -279,8 +280,8 @@ mod tests {
     fn add_max_to_zero_is_ok() {
         let sut = Sut::from_local_key_space(0u32).unwrap();
         assert_eq!(
-            sut.checked_add_n(Sut::MAX).unwrap(),
-            Sut::from_local_key_space(Sut::MAX).unwrap()
+            sut.checked_add_n(Sut::MAX_LOCAL).unwrap(),
+            Sut::from_local_key_space(Sut::MAX_LOCAL).unwrap()
         );
     }
 
@@ -295,16 +296,16 @@ mod tests {
 
     #[test]
     fn add_one_to_max_minus_1_is_max() {
-        let sut = Sut::from_local_key_space(Sut::MAX - 1).unwrap();
+        let sut = Sut::from_local_key_space(Sut::MAX_LOCAL - 1).unwrap();
         assert_eq!(
             sut.checked_add_one().unwrap(),
-            Sut::from_local_key_space(Sut::MAX).unwrap()
+            Sut::from_local_key_space(Sut::MAX_LOCAL).unwrap()
         );
     }
 
     #[test]
     fn addition_overflow_base_max() {
-        let sut = Sut::from_local_key_space(Sut::MAX).unwrap();
+        let sut = Sut::from_local_key_space(Sut::MAX_LOCAL).unwrap();
         assert!(matches!(
             sut.checked_add(&Sut::from_local_key_space(1u32).unwrap()),
             Err(CommonError::Overflow)
@@ -315,7 +316,7 @@ mod tests {
     fn addition_overflow_add_max() {
         let sut = Sut::from_local_key_space(1u32).unwrap();
         assert!(matches!(
-            sut.checked_add(&Sut::from_local_key_space(Sut::MAX).unwrap()),
+            sut.checked_add(&Sut::from_local_key_space(Sut::MAX_LOCAL).unwrap()),
             Err(CommonError::Overflow)
         ));
     }

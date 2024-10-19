@@ -16,7 +16,8 @@ impl U31 {
     pub const MAX: u32 = U31_MAX;
 }
 
-impl CheckedAdd for U31 {}
+impl AddViaDeref for U31 {}
+impl AddSelfViaDeref for U31 {}
 
 #[cfg(test)]
 impl From<u16> for U31 {

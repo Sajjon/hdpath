@@ -10,7 +10,8 @@ impl U30 {
     }
 }
 
-impl CheckedAdd for U30 {}
+impl AddViaDeref for U30 {}
+impl AddSelfViaDeref for U30 {}
 
 impl From<U30> for U31 {
     fn from(value: U30) -> Self {

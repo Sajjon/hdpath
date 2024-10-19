@@ -92,7 +92,7 @@ impl FromStr for HDPathComponent {
 }
 
 impl IsMappableToGlobalKeySpace for HDPathComponent {
-    fn map_to_global_key_space(self) -> u32 {
+    fn map_to_global_key_space(&self) -> u32 {
         match self {
             HDPathComponent::Unsecurified(u) => u.map_to_global_key_space(),
             HDPathComponent::Securified(s) => s.map_to_global_key_space(),
