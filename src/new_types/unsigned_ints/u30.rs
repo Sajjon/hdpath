@@ -35,7 +35,7 @@ impl TryFrom<u32> for U30 {
     type Error = CommonError;
 
     fn try_from(value: u32) -> Result<Self> {
-        if value <= U30_MAX {
+        if value <= Self::MAX {
             Ok(Self(value))
         } else {
             Err(CommonError::Overflow)
@@ -48,7 +48,7 @@ impl HasSampleValues for U30 {
         Self::try_from(30u32).unwrap()
     }
     fn sample_other() -> Self {
-        Self::try_from(U30_MAX).unwrap()
+        Self::try_from(Self::MAX).unwrap()
     }
 }
 
@@ -92,13 +92,13 @@ mod tests {
     fn try_from_valid() {
         assert_eq!(*Sut::try_from(0u32).unwrap(), 0);
         assert_eq!(*Sut::try_from(1u32).unwrap(), 1);
-        assert_eq!(*Sut::try_from(U30_MAX - 1).unwrap(), U30_MAX - 1);
-        assert_eq!(*Sut::try_from(U30_MAX).unwrap(), U30_MAX);
+        assert_eq!(*Sut::try_from(Sut::MAX - 1).unwrap(), Sut::MAX - 1);
+        assert_eq!(*Sut::try_from(Sut::MAX).unwrap(), Sut::MAX);
     }
 
     #[test]
     fn try_from_overflow() {
-        assert!(Sut::try_from(U30_MAX + 1).is_err());
+        assert!(Sut::try_from(Sut::MAX + 1).is_err());
     }
 
     #[test]
@@ -109,7 +109,7 @@ mod tests {
 
     #[test]
     fn add_zero_to_max_is_ok() {
-        let sut = Sut::try_from(U30_MAX).unwrap();
+        let sut = Sut::try_from(Sut::MAX).unwrap();
         assert_eq!(sut.checked_add(&Sut::try_from(0u32).unwrap()).unwrap(), sut,);
     }
 
@@ -117,8 +117,8 @@ mod tests {
     fn add_max_to_zero_is_ok() {
         let sut = Sut::try_from(0).unwrap();
         assert_eq!(
-            sut.checked_add(&Sut::try_from(U30_MAX).unwrap()).unwrap(),
-            Sut::try_from(U30_MAX).unwrap()
+            sut.checked_add(&Sut::try_from(Sut::MAX).unwrap()).unwrap(),
+            Sut::try_from(Sut::MAX).unwrap()
         );
     }
 
@@ -132,8 +132,17 @@ mod tests {
     }
 
     #[test]
+    fn add_one_to_max_minus_1_is_max() {
+        let sut = Sut::try_from(Sut::MAX - 1).unwrap();
+        assert_eq!(
+            sut.checked_add(&Sut::try_from(1u32).unwrap()).unwrap(),
+            Sut::try_from(Sut::MAX).unwrap()
+        );
+    }
+
+    #[test]
     fn addition_overflow_base_max() {
-        let sut = Sut::try_from(U30_MAX).unwrap();
+        let sut = Sut::try_from(Sut::MAX).unwrap();
         assert!(matches!(
             sut.checked_add(&Sut::try_from(1u32).unwrap()),
             Err(CommonError::Overflow)
@@ -144,7 +153,7 @@ mod tests {
     fn addition_overflow_add_max() {
         let sut = Sut::try_from(1).unwrap();
         assert!(matches!(
-            sut.checked_add(&Sut::try_from(U30_MAX).unwrap()),
+            sut.checked_add(&Sut::try_from(Sut::MAX).unwrap()),
             Err(CommonError::Overflow)
         ));
     }
