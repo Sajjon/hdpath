@@ -164,6 +164,19 @@ mod tests {
     }
 
     #[test]
+    fn securified_from_local() {
+        assert_eq!(
+            Sut::from_local_key_space(0u32, KeySpace::Securified).unwrap(),
+            Sut::from_global_key_space(0 + GLOBAL_OFFSET_SECURIFIED).unwrap()
+        );
+
+        assert_eq!(
+            Sut::from_local_key_space(3u32, KeySpace::Securified).unwrap(),
+            Sut::from_global_key_space(3 + GLOBAL_OFFSET_SECURIFIED).unwrap()
+        );
+    }
+
+    #[test]
     fn unsecurified_unhardened_from_local() {
         assert_eq!(
             Sut::from_local_key_space(0u32, KeySpace::Unsecurified { is_hardened: false }).unwrap(),
