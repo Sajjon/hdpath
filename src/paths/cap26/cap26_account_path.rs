@@ -40,12 +40,7 @@ pub trait NewEntityPath: Sized {
     ) -> Self;
 }
 pub trait NewEntityPathCheckingEntityKind: NewEntityPath {
-    fn from_quadruple(
-        network_id: NetworkID,
-        entity_kind: CAP26EntityKind,
-        key_kind: CAP26KeyKind,
-        index: Hardened,
-    ) -> Result<Self>;
+    fn try_from_unvalidated(path: UnvalidatedCAP26Path) -> Result<Self>;
 }
 
 impl NewEntityPath for CAP26AccountPath {
@@ -61,28 +56,34 @@ impl NewEntityPath for CAP26AccountPath {
         }
     }
 }
+
+/// A derivation path consisting of CAP26 components, alas, not validated
+/// as canonical.
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+pub struct UnvalidatedCAP26Path {
+    pub network_id: NetworkID,
+    pub entity_kind: CAP26EntityKind,
+    pub key_kind: CAP26KeyKind,
+    pub index: Hardened,
+}
+
 impl<T: HasEntityKind + NewEntityPath> NewEntityPathCheckingEntityKind for T {
-    fn from_quadruple(
-        network_id: NetworkID,
-        entity_kind: CAP26EntityKind,
-        key_kind: CAP26KeyKind,
-        index: Hardened,
-    ) -> Result<Self> {
+    fn try_from_unvalidated(path: UnvalidatedCAP26Path) -> Result<Self> {
+        let entity_kind = path.entity_kind;
         if entity_kind != Self::entity_kind() {
             return Err(CommonError::WrongEntityKind {
                 expected: Self::entity_kind(),
                 found: entity_kind,
             });
         }
-        Ok(Self::new(network_id, key_kind, index))
+        Ok(Self::new(path.network_id, path.key_kind, path.index))
     }
 }
 
 impl TryFrom<HDPath> for CAP26AccountPath {
     type Error = CommonError;
     fn try_from(path: HDPath) -> Result<Self> {
-        let (network_id, entity_kind, key_kind, index) = try_cap26_from_hd(&path)?;
-        Self::from_quadruple(network_id, entity_kind, key_kind, index)
+        UnvalidatedCAP26Path::try_from(path).and_then(Self::try_from_unvalidated)
     }
 }
 impl HasSampleValues for CAP26AccountPath {
