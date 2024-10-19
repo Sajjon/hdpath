@@ -35,19 +35,19 @@ impl HasSampleValues for Hardened {
 }
 
 impl IsMappableToGlobalKeySpace for Hardened {
-    fn into_global_key_space(self) -> u32 {
+    fn map_to_global_key_space(self) -> u32 {
         match self {
-            Self::Unsecurified(u) => u.into_global_key_space(),
-            Self::Securified(s) => s.into_global_key_space(),
+            Self::Unsecurified(u) => u.map_to_global_key_space(),
+            Self::Securified(s) => s.map_to_global_key_space(),
         }
     }
 }
 
-impl HasIndexInLocalKeySpace for Hardened {
-    fn index_in_local_key_space(&self) -> u32 {
+impl IsMappableToLocalKeySpace for Hardened {
+    fn map_to_local_key_space(&self) -> InLocalKeySpace {
         match self {
-            Self::Unsecurified(u) => u.index_in_local_key_space(),
-            Self::Securified(s) => s.index_in_local_key_space(),
+            Self::Unsecurified(u) => u.map_to_local_key_space(),
+            Self::Securified(s) => s.map_to_local_key_space(),
         }
     }
 }
@@ -332,22 +332,42 @@ mod tests {
     }
 
     #[test]
-    fn index_in_local_key_space() {
+    fn index_in_local_key_space_unsecurified() {
         assert_eq!(
             Sut::from_global_key_space(1337 + GLOBAL_OFFSET_HARDENED)
                 .unwrap()
                 .index_in_local_key_space(),
-            1337
+            U31::from(1337)
         );
     }
 
     #[test]
-    fn into_global() {
+    fn index_in_local_key_space_securified() {
+        assert_eq!(
+            Sut::from_global_key_space(1337 + GLOBAL_OFFSET_SECURIFIED)
+                .unwrap()
+                .index_in_local_key_space(),
+            U31::from(1337)
+        );
+    }
+
+    #[test]
+    fn into_global_unsecurified() {
         assert_eq!(
             Sut::from_global_key_space(1337 + GLOBAL_OFFSET_HARDENED)
                 .unwrap()
-                .into_global_key_space(),
+                .map_to_global_key_space(),
             1337 + GLOBAL_OFFSET_HARDENED
+        );
+    }
+
+    #[test]
+    fn into_global_securified() {
+        assert_eq!(
+            Sut::from_global_key_space(1337 + GLOBAL_OFFSET_SECURIFIED)
+                .unwrap()
+                .map_to_global_key_space(),
+            1337 + GLOBAL_OFFSET_SECURIFIED
         );
     }
 

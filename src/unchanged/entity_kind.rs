@@ -36,9 +36,10 @@ impl CAP26EntityKind {
     }
 }
 
-impl TryFrom<u32> for CAP26EntityKind {
+impl TryFrom<U31> for CAP26EntityKind {
     type Error = CommonError;
-    fn try_from(value: u32) -> Result<Self> {
+    fn try_from(value: U31) -> Result<Self> {
+        let value = u32::from(value);
         match value {
             525 => Ok(Self::Account),
             618 => Ok(Self::Identity),

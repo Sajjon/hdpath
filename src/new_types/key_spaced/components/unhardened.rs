@@ -34,9 +34,9 @@ impl HasSampleValues for Unhardened {
     }
 }
 
-impl HasIndexInLocalKeySpace for Unhardened {
-    fn index_in_local_key_space(&self) -> u32 {
-        **self
+impl IsMappableToLocalKeySpace for Unhardened {
+    fn map_to_local_key_space(&self) -> InLocalKeySpace {
+        InLocalKeySpace::new(self.0, KeySpace::Unsecurified { is_hardened: false })
     }
 }
 
@@ -110,7 +110,7 @@ mod tests {
     fn from_str_valid_0() {
         assert_eq!(
             "0".parse::<Sut>().unwrap(),
-            Sut::from_local_key_space(0).unwrap()
+            Sut::from_local_key_space(0u32).unwrap()
         );
     }
 
@@ -118,7 +118,7 @@ mod tests {
     fn from_str_valid_1() {
         assert_eq!(
             "1".parse::<Sut>().unwrap(),
-            Sut::from_local_key_space(1).unwrap()
+            Sut::from_local_key_space(1u32).unwrap()
         );
     }
 
@@ -132,12 +132,15 @@ mod tests {
 
     #[test]
     fn display_0() {
-        assert_eq!(format!("{}", Sut::from_local_key_space(0).unwrap()), "0");
+        assert_eq!(format!("{}", Sut::from_local_key_space(0u32).unwrap()), "0");
     }
 
     #[test]
     fn debug_0() {
-        assert_eq!(format!("{:?}", Sut::from_local_key_space(0).unwrap()), "0");
+        assert_eq!(
+            format!("{:?}", Sut::from_local_key_space(0u32).unwrap()),
+            "0"
+        );
     }
 
     #[test]
@@ -171,7 +174,7 @@ mod tests {
     fn from_global_valid() {
         assert_eq!(
             Sut::from_global_key_space(1337).unwrap(),
-            Sut::from_local_key_space(1337).unwrap()
+            Sut::from_local_key_space(1337u32).unwrap()
         );
     }
 
@@ -186,23 +189,23 @@ mod tests {
             Sut::from_global_key_space(1337)
                 .unwrap()
                 .index_in_local_key_space(),
-            1337
+            U31::from(1337)
         );
     }
 
     #[test]
     fn into_global() {
         assert_eq!(
-            Sut::from_local_key_space(1337)
+            Sut::from_local_key_space(1337u32)
                 .unwrap()
-                .into_global_key_space(),
+                .map_to_global_key_space(),
             1337
         );
     }
 
     #[test]
     fn json_roundtrip() {
-        let sut = Sut::from_local_key_space(1337).unwrap();
+        let sut = Sut::from_local_key_space(1337u32).unwrap();
 
         assert_json_value_eq_after_roundtrip(&sut, json!("1337"));
         assert_json_roundtrip(&sut);

@@ -2,11 +2,20 @@ use crate::prelude::*;
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Deref, AsRef)]
 pub struct U30(u32);
+
 impl U30 {
     pub(crate) const unsafe fn new(value: u32) -> Self {
         Self(value)
     }
 }
+
+#[cfg(test)]
+impl From<u16> for U31 {
+    fn from(value: u16) -> Self {
+        Self::try_from(value as u32).unwrap()
+    }
+}
+
 impl From<U30> for U31 {
     fn from(value: U30) -> Self {
         Self::try_from(value.0).unwrap()
@@ -79,8 +88,8 @@ mod tests {
 
     #[test]
     fn try_from_valid() {
-        assert_eq!(*Sut::try_from(0).unwrap(), 0);
-        assert_eq!(*Sut::try_from(1).unwrap(), 1);
+        assert_eq!(*Sut::try_from(0u32).unwrap(), 0);
+        assert_eq!(*Sut::try_from(1u32).unwrap(), 1);
         assert_eq!(*Sut::try_from(U31_MAX - 1).unwrap(), U31_MAX - 1);
         assert_eq!(*Sut::try_from(U31_MAX).unwrap(), U31_MAX);
     }

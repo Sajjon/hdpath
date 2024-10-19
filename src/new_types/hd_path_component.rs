@@ -41,11 +41,11 @@ impl HasSampleValues for HDPathComponent {
     }
 }
 
-impl HasIndexInLocalKeySpace for HDPathComponent {
-    fn index_in_local_key_space(&self) -> u32 {
+impl IsMappableToLocalKeySpace for HDPathComponent {
+    fn map_to_local_key_space(&self) -> InLocalKeySpace {
         match self {
-            Self::Unsecurified(u) => u.index_in_local_key_space(),
-            Self::Securified(s) => s.index_in_local_key_space(),
+            Self::Unsecurified(u) => u.map_to_local_key_space(),
+            Self::Securified(s) => s.map_to_local_key_space(),
         }
     }
 }
@@ -104,10 +104,10 @@ impl FromStr for HDPathComponent {
 }
 
 impl IsMappableToGlobalKeySpace for HDPathComponent {
-    fn into_global_key_space(self) -> u32 {
+    fn map_to_global_key_space(self) -> u32 {
         match self {
-            HDPathComponent::Unsecurified(u) => u.into_global_key_space(),
-            HDPathComponent::Securified(s) => s.into_global_key_space(),
+            HDPathComponent::Unsecurified(u) => u.map_to_global_key_space(),
+            HDPathComponent::Securified(s) => s.map_to_global_key_space(),
         }
     }
 }
@@ -170,12 +170,12 @@ mod tests {
     #[test]
     fn unsecurified_unhardened_from_local() {
         assert_eq!(
-            Sut::from_local_key_space(0, KeySpace::Unsecurified { is_hardened: false }).unwrap(),
+            Sut::from_local_key_space(0u32, KeySpace::Unsecurified { is_hardened: false }).unwrap(),
             Sut::from_global_key_space(0).unwrap()
         );
 
         assert_eq!(
-            Sut::from_local_key_space(3, KeySpace::Unsecurified { is_hardened: false }).unwrap(),
+            Sut::from_local_key_space(3u32, KeySpace::Unsecurified { is_hardened: false }).unwrap(),
             Sut::from_global_key_space(3).unwrap()
         );
     }
@@ -183,12 +183,12 @@ mod tests {
     #[test]
     fn unsecurified_hardened_from_local() {
         assert_eq!(
-            Sut::from_local_key_space(0, KeySpace::Unsecurified { is_hardened: true }).unwrap(),
+            Sut::from_local_key_space(0u32, KeySpace::Unsecurified { is_hardened: true }).unwrap(),
             Sut::from_global_key_space(GLOBAL_OFFSET_HARDENED).unwrap()
         );
 
         assert_eq!(
-            Sut::from_local_key_space(3, KeySpace::Unsecurified { is_hardened: true }).unwrap(),
+            Sut::from_local_key_space(3u32, KeySpace::Unsecurified { is_hardened: true }).unwrap(),
             Sut::from_global_key_space(3 + GLOBAL_OFFSET_HARDENED).unwrap()
         );
     }
@@ -196,12 +196,12 @@ mod tests {
     #[test]
     fn securified_hardened_from_local() {
         assert_eq!(
-            Sut::from_local_key_space(0, KeySpace::Securified).unwrap(),
+            Sut::from_local_key_space(0u32, KeySpace::Securified).unwrap(),
             Sut::from_global_key_space(GLOBAL_OFFSET_SECURIFIED).unwrap()
         );
 
         assert_eq!(
-            Sut::from_local_key_space(3, KeySpace::Securified).unwrap(),
+            Sut::from_local_key_space(3u32, KeySpace::Securified).unwrap(),
             Sut::from_global_key_space(3 + GLOBAL_OFFSET_SECURIFIED).unwrap()
         );
     }
@@ -300,7 +300,7 @@ mod tests {
         assert_eq!(
             Sut::from_global_key_space(1337).unwrap(),
             Sut::Unsecurified(Unsecurified::Unhardened(
-                Unhardened::from_local_key_space(1337).unwrap()
+                Unhardened::from_local_key_space(1337u32).unwrap()
             ))
         );
 
@@ -318,12 +318,25 @@ mod tests {
     }
 
     #[test]
+    fn map_to_local_key_space() {
+        assert_eq!(
+            Sut::from_global_key_space(1337)
+                .unwrap()
+                .map_to_local_key_space(),
+            InLocalKeySpace::new(
+                U31::from(1337),
+                KeySpace::Unsecurified { is_hardened: false }
+            )
+        );
+    }
+
+    #[test]
     fn index_in_local_key_space() {
         assert_eq!(
             Sut::from_global_key_space(1337)
                 .unwrap()
                 .index_in_local_key_space(),
-            1337
+            U31::from(1337)
         );
     }
 
@@ -332,7 +345,7 @@ mod tests {
         assert_eq!(
             Sut::from_global_key_space(1337)
                 .unwrap()
-                .into_global_key_space(),
+                .map_to_global_key_space(),
             1337
         );
     }

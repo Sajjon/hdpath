@@ -85,9 +85,9 @@ impl NetworkID {
     }
 }
 
-impl TryFrom<u32> for NetworkID {
+impl TryFrom<U31> for NetworkID {
     type Error = CommonError;
-    fn try_from(value: u32) -> Result<Self> {
-        Self::from_repr(value as u8).ok_or(CommonError::InvalidNetworkID)
+    fn try_from(value: U31) -> Result<Self> {
+        Self::from_repr(u32::from(value) as u8).ok_or(CommonError::InvalidNetworkID)
     }
 }

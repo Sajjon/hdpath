@@ -5,12 +5,13 @@ pub struct U31(u32);
 
 impl HasSampleValues for U31 {
     fn sample() -> Self {
-        Self::try_from(31).unwrap()
+        Self::try_from(237u32).unwrap()
     }
     fn sample_other() -> Self {
         Self::try_from(U31_MAX).unwrap()
     }
 }
+
 impl From<U31> for u32 {
     fn from(value: U31) -> Self {
         value.0

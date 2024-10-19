@@ -56,9 +56,12 @@ impl IsPathComponentStringConvertible for UnsecurifiedHardened {
     const NON_CANONICAL_SUFFIXES: &'static str = UNSECURIFIED_HARDENED_NON_CANONICAL_SUFFIX;
 }
 
-impl HasIndexInLocalKeySpace for UnsecurifiedHardened {
-    fn index_in_local_key_space(&self) -> u32 {
-        **self
+impl IsMappableToLocalKeySpace for UnsecurifiedHardened {
+    fn map_to_local_key_space(&self) -> InLocalKeySpace {
+        InLocalKeySpace::new(
+            U31::from(self.0),
+            KeySpace::Unsecurified { is_hardened: true },
+        )
     }
 }
 impl HasOffsetFromGlobalKeySpace for UnsecurifiedHardened {
@@ -230,7 +233,7 @@ mod tests {
             Sut::from_global_key_space(GLOBAL_OFFSET_HARDENED + 1337)
                 .unwrap()
                 .index_in_local_key_space(),
-            1337
+            U31::from(1337)
         );
     }
 
@@ -239,7 +242,7 @@ mod tests {
         assert_eq!(
             Sut::from_local_key_space(1337)
                 .unwrap()
-                .into_global_key_space(),
+                .map_to_global_key_space(),
             GLOBAL_OFFSET_HARDENED + 1337
         );
     }

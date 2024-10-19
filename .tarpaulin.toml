@@ -1,5 +1,7 @@
 [all]
-exclude-files = ["src/types/sargon_types.rs", "src/testing/*", "src/samples/*"]
+exclude-files = [
+	"src/unchanged/*",
+]
 verbose = false
 force-clean = true
 timeout = "2m"

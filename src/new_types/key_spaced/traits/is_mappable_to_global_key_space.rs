@@ -1,11 +1,13 @@
 use crate::prelude::*;
 
 pub trait IsMappableToGlobalKeySpace {
-    fn into_global_key_space(self) -> u32;
+    fn map_to_global_key_space(self) -> u32;
 }
 
-impl<T: HasIndexInLocalKeySpace + HasOffsetFromGlobalKeySpace> IsMappableToGlobalKeySpace for T {
-    fn into_global_key_space(self) -> u32 {
-        self.index_in_local_key_space() + T::offset_from_global_key_space()
+impl<T: IsMappableToLocalKeySpace + HasOffsetFromGlobalKeySpace> IsMappableToGlobalKeySpace for T {
+    fn map_to_global_key_space(self) -> u32 {
+        let index_in_local = self.index_in_local_key_space();
+        let index_in_global = u32::from(index_in_local);
+        index_in_global + T::offset_from_global_key_space()
     }
 }

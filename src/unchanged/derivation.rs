@@ -37,7 +37,7 @@ impl HDPath {
     fn hardened_chain(&self) -> Vec<IotaSlip10PathComponent> {
         self.components()
             .iter()
-            .map(|c| c.into_global_key_space())
+            .map(|c| c.map_to_global_key_space())
             .map(|v| IotaSlip10PathComponent::try_from(v).expect("Should work"))
             .collect::<Vec<IotaSlip10PathComponent>>()
     }

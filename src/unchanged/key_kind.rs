@@ -49,9 +49,10 @@ impl CAP26KeyKind {
     }
 }
 
-impl TryFrom<u32> for CAP26KeyKind {
+impl TryFrom<U31> for CAP26KeyKind {
     type Error = CommonError;
-    fn try_from(value: u32) -> Result<Self> {
+    fn try_from(value: U31) -> Result<Self> {
+        let value = u32::from(value);
         match value {
             1460 => Ok(Self::TransactionSigning),
             1678 => Ok(Self::AuthenticationSigning),
