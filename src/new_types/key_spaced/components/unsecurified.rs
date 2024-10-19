@@ -183,7 +183,7 @@ mod tests {
 
     #[test]
     fn from_global_key_space_max_plus_one_is_err() {
-        assert!(matches!(Sut::from_global_key_space(Sut::MAX + 1), Err(_)));
+        assert!(Sut::from_global_key_space(Sut::MAX + 1).is_err());
     }
 
     #[test]

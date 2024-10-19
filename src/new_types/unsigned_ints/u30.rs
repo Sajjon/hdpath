@@ -4,18 +4,13 @@ use crate::prelude::*;
 pub struct U30(u32);
 
 impl U30 {
+    pub const MAX: u32 = U30_MAX;
     pub(crate) const unsafe fn new(value: u32) -> Self {
         Self(value)
     }
 }
 
-impl U30 {
-    pub const MAX: u32 = U30_MAX;
-
-    pub fn checked_add(&self, rhs: &Self) -> Result<Self> {
-        Self::try_from(**self + **rhs)
-    }
-}
+impl CheckedAdd for U30 {}
 
 impl From<U30> for U31 {
     fn from(value: U30) -> Self {
@@ -116,7 +111,7 @@ mod tests {
     fn add_max_to_zero_is_ok() {
         let sut = Sut::try_from(0).unwrap();
         assert_eq!(
-            sut.checked_add(&Sut::try_from(Sut::MAX).unwrap()).unwrap(),
+            sut.checked_add_n(Sut::MAX).unwrap(),
             Sut::try_from(Sut::MAX).unwrap()
         );
     }
@@ -124,10 +119,7 @@ mod tests {
     #[test]
     fn add_one() {
         let sut = Sut::try_from(42).unwrap();
-        assert_eq!(
-            sut.checked_add(&Sut::try_from(1u32).unwrap()).unwrap(),
-            Sut::try_from(43).unwrap()
-        );
+        assert_eq!(sut.checked_add_one().unwrap(), Sut::try_from(43).unwrap());
     }
 
     #[test]

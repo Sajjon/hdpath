@@ -22,12 +22,9 @@ pub struct UnsecurifiedHardened(U30);
 
 impl UnsecurifiedHardened {
     pub const MAX: u32 = U30::MAX;
-
-    #[allow(unused)]
-    pub fn checked_add(&self, rhs: &Self) -> Result<Self> {
-        self.0.checked_add(&rhs.0).map(Self::from)
-    }
 }
+
+impl CheckedAdd for UnsecurifiedHardened {}
 
 impl HasSampleValues for UnsecurifiedHardened {
     fn sample() -> Self {
@@ -51,6 +48,14 @@ impl FromLocalKeySpace for UnsecurifiedHardened {
 impl From<U30> for UnsecurifiedHardened {
     fn from(value: U30) -> Self {
         Self(value)
+    }
+}
+
+impl TryFrom<u32> for UnsecurifiedHardened {
+    type Error = CommonError;
+
+    fn try_from(value: u32) -> std::result::Result<Self, Self::Error> {
+        U30::try_from(value).map(Self)
     }
 }
 
@@ -290,6 +295,19 @@ mod tests {
     }
 
     #[test]
+    fn try_from_u32() {
+        assert_eq!(
+            Sut::try_from(0u32).unwrap(),
+            Sut::from_local_key_space(0).unwrap()
+        );
+    }
+
+    #[test]
+    fn try_from_u32_fail() {
+        assert!(Sut::try_from(Sut::MAX + 1).is_err());
+    }
+
+    #[test]
     fn add_zero() {
         let sut = Sut::from_local_key_space(42).unwrap();
         assert_eq!(
@@ -313,8 +331,7 @@ mod tests {
     fn add_max_to_zero_is_ok() {
         let sut = Sut::from_local_key_space(0).unwrap();
         assert_eq!(
-            sut.checked_add(&Sut::from_local_key_space(Sut::MAX).unwrap())
-                .unwrap(),
+            sut.checked_add_n(Sut::MAX).unwrap(),
             Sut::from_local_key_space(Sut::MAX).unwrap()
         );
     }
@@ -323,8 +340,7 @@ mod tests {
     fn add_one() {
         let sut = Sut::from_local_key_space(42).unwrap();
         assert_eq!(
-            sut.checked_add(&Sut::from_local_key_space(1u32).unwrap())
-                .unwrap(),
+            sut.checked_add_one().unwrap(),
             Sut::from_local_key_space(43).unwrap()
         );
     }
@@ -333,8 +349,7 @@ mod tests {
     fn add_one_to_max_minus_1_is_max() {
         let sut = Sut::from_local_key_space(Sut::MAX - 1).unwrap();
         assert_eq!(
-            sut.checked_add(&Sut::from_local_key_space(1u32).unwrap())
-                .unwrap(),
+            sut.checked_add_one().unwrap(),
             Sut::from_local_key_space(Sut::MAX).unwrap()
         );
     }

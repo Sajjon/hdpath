@@ -21,12 +21,9 @@ pub struct SecurifiedU30(U30);
 
 impl SecurifiedU30 {
     pub const MAX: u32 = U30::MAX;
-
-    #[allow(unused)]
-    pub fn checked_add(&self, rhs: &Self) -> Result<Self> {
-        self.0.checked_add(&rhs.0).map(Self::from)
-    }
 }
+
+impl CheckedAdd for SecurifiedU30 {}
 
 impl HasSampleValues for SecurifiedU30 {
     fn sample() -> Self {
@@ -55,6 +52,14 @@ impl FromLocalKeySpace for SecurifiedU30 {
 impl From<U30> for SecurifiedU30 {
     fn from(value: U30) -> Self {
         Self(value)
+    }
+}
+
+impl TryFrom<u32> for SecurifiedU30 {
+    type Error = CommonError;
+
+    fn try_from(value: u32) -> std::result::Result<Self, Self::Error> {
+        U30::try_from(value).map(Self)
     }
 }
 
@@ -114,6 +119,19 @@ mod tests {
             .len(),
             2
         )
+    }
+
+    #[test]
+    fn try_from_u32() {
+        assert_eq!(
+            Sut::try_from(0u32).unwrap(),
+            Sut::from_local_key_space(0).unwrap()
+        );
+    }
+
+    #[test]
+    fn try_from_u32_fail() {
+        assert!(Sut::try_from(Sut::MAX + 1).is_err());
     }
 
     #[test]
@@ -311,8 +329,7 @@ mod tests {
     fn add_max_to_zero_is_ok() {
         let sut = Sut::from_local_key_space(0).unwrap();
         assert_eq!(
-            sut.checked_add(&Sut::from_local_key_space(Sut::MAX).unwrap())
-                .unwrap(),
+            sut.checked_add_n(Sut::MAX).unwrap(),
             Sut::from_local_key_space(Sut::MAX).unwrap()
         );
     }
@@ -321,8 +338,7 @@ mod tests {
     fn add_one() {
         let sut = Sut::from_local_key_space(42).unwrap();
         assert_eq!(
-            sut.checked_add(&Sut::from_local_key_space(1u32).unwrap())
-                .unwrap(),
+            sut.checked_add_one().unwrap(),
             Sut::from_local_key_space(43).unwrap()
         );
     }

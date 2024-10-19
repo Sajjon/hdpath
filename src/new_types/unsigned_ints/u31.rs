@@ -14,11 +14,9 @@ impl HasSampleValues for U31 {
 
 impl U31 {
     pub const MAX: u32 = U31_MAX;
-
-    pub fn checked_add(&self, rhs: &Self) -> Result<Self> {
-        Self::try_from(**self + **rhs)
-    }
 }
+
+impl CheckedAdd for U31 {}
 
 #[cfg(test)]
 impl From<u16> for U31 {
@@ -108,7 +106,7 @@ mod tests {
     fn add_max_to_zero_is_ok() {
         let sut = Sut::try_from(0u32).unwrap();
         assert_eq!(
-            sut.checked_add(&Sut::try_from(Sut::MAX).unwrap()).unwrap(),
+            sut.checked_add_n(Sut::MAX).unwrap(),
             Sut::try_from(Sut::MAX).unwrap()
         );
     }
@@ -117,7 +115,7 @@ mod tests {
     fn add_one() {
         let sut = Sut::try_from(42u32).unwrap();
         assert_eq!(
-            sut.checked_add(&Sut::try_from(1u32).unwrap()).unwrap(),
+            sut.checked_add_one().unwrap(),
             Sut::try_from(43u32).unwrap()
         );
     }
