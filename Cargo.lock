@@ -481,7 +481,6 @@ dependencies = [
  "hex",
  "iota-crypto",
  "itertools",
- "num-traits",
  "pretty_assertions",
  "serde",
  "serde_json",

@@ -12,6 +12,12 @@ impl HasSampleValues for U31 {
     }
 }
 
+#[cfg(test)]
+impl From<u16> for U31 {
+    fn from(value: u16) -> Self {
+        Self::try_from(value as u32).unwrap()
+    }
+}
 impl From<U31> for u32 {
     fn from(value: U31) -> Self {
         value.0
@@ -33,7 +39,7 @@ impl TryFrom<u32> for U31 {
 mod tests {
     use super::*;
 
-    type Sut = U30;
+    type Sut = U31;
 
     #[test]
     fn equality() {
@@ -67,14 +73,14 @@ mod tests {
 
     #[test]
     fn try_from_valid() {
-        assert_eq!(*Sut::try_from(0).unwrap(), 0);
-        assert_eq!(*Sut::try_from(1).unwrap(), 1);
-        assert_eq!(*Sut::try_from(U30_MAX - 1).unwrap(), U30_MAX - 1);
-        assert_eq!(*Sut::try_from(U30_MAX).unwrap(), U30_MAX);
+        assert_eq!(*Sut::try_from(0u32).unwrap(), 0);
+        assert_eq!(*Sut::try_from(1u32).unwrap(), 1);
+        assert_eq!(*Sut::try_from(U31_MAX - 1).unwrap(), U31_MAX - 1);
+        assert_eq!(*Sut::try_from(U31_MAX).unwrap(), U31_MAX);
     }
 
     #[test]
     fn try_from_overflow() {
-        assert!(Sut::try_from(U30_MAX + 1).is_err());
+        assert!(Sut::try_from(U31_MAX + 1).is_err());
     }
 }
