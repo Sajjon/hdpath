@@ -30,8 +30,8 @@ impl HasSampleValues for SecurifiedU30 {
 }
 
 impl IsMappableToLocalKeySpace for SecurifiedU30 {
-    fn map_to_local_key_space(&self) -> InLocalKeySpace {
-        InLocalKeySpace::new(U31::from(self.0), KeySpace::Securified)
+    fn map_to_local_key_space(&self) -> KeySpaceWithLocalIndex {
+        KeySpaceWithLocalIndex::Securified(self.0)
     }
 }
 impl HasOffsetFromGlobalKeySpace for SecurifiedU30 {

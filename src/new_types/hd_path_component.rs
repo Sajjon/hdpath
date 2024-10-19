@@ -42,7 +42,7 @@ impl HasSampleValues for HDPathComponent {
 }
 
 impl IsMappableToLocalKeySpace for HDPathComponent {
-    fn map_to_local_key_space(&self) -> InLocalKeySpace {
+    fn map_to_local_key_space(&self) -> KeySpaceWithLocalIndex {
         match self {
             Self::Unsecurified(u) => u.map_to_local_key_space(),
             Self::Securified(s) => s.map_to_local_key_space(),
@@ -319,15 +319,11 @@ mod tests {
 
     #[test]
     fn map_to_local_key_space() {
-        assert_eq!(
-            Sut::from_global_key_space(1337)
-                .unwrap()
-                .map_to_local_key_space(),
-            InLocalKeySpace::new(
-                U31::from(1337),
-                KeySpace::Unsecurified { is_hardened: false }
-            )
-        );
+        let local = Sut::from_global_key_space(1337)
+            .unwrap()
+            .map_to_local_key_space();
+        assert!(local.key_space().is_unsecurified_unhardened());
+        assert_eq!(local.index(), U31::from(1337));
     }
 
     #[test]

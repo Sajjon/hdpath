@@ -44,7 +44,7 @@ impl IsMappableToGlobalKeySpace for Hardened {
 }
 
 impl IsMappableToLocalKeySpace for Hardened {
-    fn map_to_local_key_space(&self) -> InLocalKeySpace {
+    fn map_to_local_key_space(&self) -> KeySpaceWithLocalIndex {
         match self {
             Self::Unsecurified(u) => u.map_to_local_key_space(),
             Self::Securified(s) => s.map_to_local_key_space(),

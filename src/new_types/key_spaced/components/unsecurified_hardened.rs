@@ -57,11 +57,8 @@ impl IsPathComponentStringConvertible for UnsecurifiedHardened {
 }
 
 impl IsMappableToLocalKeySpace for UnsecurifiedHardened {
-    fn map_to_local_key_space(&self) -> InLocalKeySpace {
-        InLocalKeySpace::new(
-            U31::from(self.0),
-            KeySpace::Unsecurified { is_hardened: true },
-        )
+    fn map_to_local_key_space(&self) -> KeySpaceWithLocalIndex {
+        KeySpaceWithLocalIndex::Unsecurified(UnsecurifiedKeySpaceWithLocalIndex::Hardened(self.0))
     }
 }
 impl HasOffsetFromGlobalKeySpace for UnsecurifiedHardened {

@@ -35,7 +35,7 @@ impl HasSampleValues for Unsecurified {
 }
 
 impl IsMappableToLocalKeySpace for Unsecurified {
-    fn map_to_local_key_space(&self) -> InLocalKeySpace {
+    fn map_to_local_key_space(&self) -> KeySpaceWithLocalIndex {
         match self {
             Self::Unhardened(u) => u.map_to_local_key_space(),
             Self::Hardened(h) => h.map_to_local_key_space(),
