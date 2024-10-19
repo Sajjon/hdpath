@@ -19,6 +19,15 @@ use crate::prelude::*;
 #[debug("{}", self.to_bip32_string_debug())]
 pub struct Unhardened(U31);
 
+impl Unhardened {
+    pub const MAX: u32 = U31::MAX;
+
+    #[allow(unused)]
+    pub fn checked_add(&self, rhs: &Self) -> Result<Self> {
+        self.0.checked_add(&rhs.0).map(Self::from)
+    }
+}
+
 impl HasSampleValues for Unhardened {
     fn sample() -> Self {
         Self::from_local_key_space(*U31::sample()).unwrap()
@@ -227,5 +236,72 @@ mod tests {
         assert_json_value_fails::<Sut>(json!("2'"));
         assert_json_value_fails::<Sut>(json!("2X"));
         assert_json_value_fails::<Sut>(json!("   "));
+    }
+    #[test]
+    fn add_zero() {
+        let sut = Sut::from_local_key_space(42u32).unwrap();
+        assert_eq!(
+            sut.checked_add(&Sut::from_local_key_space(0u32).unwrap())
+                .unwrap(),
+            sut
+        );
+    }
+
+    #[test]
+    fn add_zero_to_max_is_ok() {
+        let sut = Sut::from_local_key_space(Sut::MAX).unwrap();
+        assert_eq!(
+            sut.checked_add(&Sut::from_local_key_space(0u32).unwrap())
+                .unwrap(),
+            sut,
+        );
+    }
+
+    #[test]
+    fn add_max_to_zero_is_ok() {
+        let sut = Sut::from_local_key_space(0u32).unwrap();
+        assert_eq!(
+            sut.checked_add(&Sut::from_local_key_space(Sut::MAX).unwrap())
+                .unwrap(),
+            Sut::from_local_key_space(Sut::MAX).unwrap()
+        );
+    }
+
+    #[test]
+    fn add_one() {
+        let sut = Sut::from_local_key_space(42u32).unwrap();
+        assert_eq!(
+            sut.checked_add(&Sut::from_local_key_space(1u32).unwrap())
+                .unwrap(),
+            Sut::from_local_key_space(43u32).unwrap()
+        );
+    }
+
+    #[test]
+    fn add_one_to_max_minus_1_is_max() {
+        let sut = Sut::from_local_key_space(Sut::MAX - 1).unwrap();
+        assert_eq!(
+            sut.checked_add(&Sut::from_local_key_space(1u32).unwrap())
+                .unwrap(),
+            Sut::from_local_key_space(Sut::MAX).unwrap()
+        );
+    }
+
+    #[test]
+    fn addition_overflow_base_max() {
+        let sut = Sut::from_local_key_space(Sut::MAX).unwrap();
+        assert!(matches!(
+            sut.checked_add(&Sut::from_local_key_space(1u32).unwrap()),
+            Err(CommonError::Overflow)
+        ));
+    }
+
+    #[test]
+    fn addition_overflow_add_max() {
+        let sut = Sut::from_local_key_space(1u32).unwrap();
+        assert!(matches!(
+            sut.checked_add(&Sut::from_local_key_space(Sut::MAX).unwrap()),
+            Err(CommonError::Overflow)
+        ));
     }
 }
