@@ -231,6 +231,17 @@ mod tests {
     }
 
     #[test]
+    fn map_to_local_key_space_key_space() {
+        assert_eq!(
+            Sut::from_global_key_space(GLOBAL_OFFSET_HARDENED + 1337)
+                .unwrap()
+                .map_to_local_key_space()
+                .key_space(),
+            KeySpace::Unsecurified { is_hardened: true }
+        );
+    }
+
+    #[test]
     fn into_global() {
         assert_eq!(
             Sut::from_local_key_space(1337)

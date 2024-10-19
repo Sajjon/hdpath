@@ -16,11 +16,11 @@ use crate::prelude::*;
 )]
 pub enum Hardened {
     #[display("{_0}")]
-    #[debug("{_0}")]
+    #[debug("{:?}", _0)]
     Unsecurified(UnsecurifiedHardened),
 
     #[display("{_0}")]
-    #[debug("{_0}")]
+    #[debug("{:?}", _0)]
     Securified(SecurifiedU30),
 }
 
@@ -274,7 +274,7 @@ mod tests {
     fn debug_unsec_0() {
         assert_eq!(
             format!("{:?}", Sut::from_local_key_space(0, false).unwrap()),
-            "0H"
+            "0'"
         );
     }
 
@@ -282,7 +282,7 @@ mod tests {
     fn debug_sec_0() {
         assert_eq!(
             format!("{:?}", Sut::from_local_key_space(0, true).unwrap()),
-            "0S"
+            "0^"
         );
     }
 
@@ -338,6 +338,28 @@ mod tests {
                 .unwrap()
                 .index_in_local_key_space(),
             U31::from(1337)
+        );
+    }
+
+    #[test]
+    fn index_in_local_key_space_unsecurified_key_space() {
+        assert_eq!(
+            Sut::from_global_key_space(1337 + GLOBAL_OFFSET_HARDENED)
+                .unwrap()
+                .map_to_local_key_space()
+                .key_space(),
+            KeySpace::Unsecurified { is_hardened: true }
+        );
+    }
+
+    #[test]
+    fn index_in_local_key_space_securified_key_space() {
+        assert_eq!(
+            Sut::from_global_key_space(1337 + GLOBAL_OFFSET_SECURIFIED)
+                .unwrap()
+                .map_to_local_key_space()
+                .key_space(),
+            KeySpace::Securified
         );
     }
 

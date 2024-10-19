@@ -252,4 +252,14 @@ mod tests {
         )
         .is_securified());
     }
+
+    #[test]
+    fn entity_kind() {
+        assert_eq!(Sut::entity_kind(), CAP26EntityKind::Account);
+    }
+
+    #[test]
+    fn get_entity_kind() {
+        assert_eq!(Sut::sample().get_entity_kind(), CAP26EntityKind::Account);
+    }
 }

@@ -16,11 +16,11 @@ use crate::prelude::*;
 )]
 pub enum Unsecurified {
     #[display("{_0}")]
-    #[debug("{_0}")]
+    #[debug("{:?}", _0)]
     Unhardened(Unhardened),
 
     #[display("{_0}")]
-    #[debug("{_0}")]
+    #[debug("{:?}", _0)]
     Hardened(UnsecurifiedHardened),
 }
 
@@ -281,6 +281,28 @@ mod tests {
                 .unwrap()
                 .index_in_local_key_space(),
             U31::from(1337)
+        );
+    }
+
+    #[test]
+    fn unhardened_map_to_local_key_space_key_space() {
+        assert_eq!(
+            Sut::from_global_key_space(1337)
+                .unwrap()
+                .map_to_local_key_space()
+                .key_space(),
+            KeySpace::Unsecurified { is_hardened: false }
+        );
+    }
+
+    #[test]
+    fn hardened_map_to_local_key_space_key_space() {
+        assert_eq!(
+            Sut::from_global_key_space(1337 + GLOBAL_OFFSET_HARDENED)
+                .unwrap()
+                .map_to_local_key_space()
+                .key_space(),
+            KeySpace::Unsecurified { is_hardened: true }
         );
     }
 

@@ -23,11 +23,11 @@ use crate::prelude::*;
 )]
 pub enum HDPathComponent {
     #[display("{_0}")]
-    #[debug("{_0}")]
+    #[debug("{:?}", _0)]
     Unsecurified(Unsecurified),
 
     #[display("{_0}")]
-    #[debug("{_0}")]
+    #[debug("{:?}", _0)]
     Securified(SecurifiedU30),
 }
 

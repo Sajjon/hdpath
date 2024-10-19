@@ -84,7 +84,12 @@ mod tests {
 
     #[test]
     fn display() {
-        assert_eq!(Sut::default().to_string(), "m/44H/1022H/365H");
+        assert_eq!(format!("{}", Sut::default()), "m/44H/1022H/365H");
+    }
+
+    #[test]
+    fn debug() {
+        assert_eq!(format!("{:?}", Sut::default()), "m/44'/1022'/365'");
     }
 
     #[test]
