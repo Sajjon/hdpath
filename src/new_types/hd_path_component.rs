@@ -31,6 +31,8 @@ pub enum HDPathComponent {
     Securified(SecurifiedU30),
 }
 
+impl AddViaGlobalKeySpace for HDPathComponent {}
+
 impl HasSampleValues for HDPathComponent {
     fn sample() -> Self {
         Self::Unsecurified(Unsecurified::sample())
@@ -389,5 +391,94 @@ mod tests {
         assert_json_value_fails::<Sut>(json!("^"));
         assert_json_value_fails::<Sut>(json!("2X"));
         assert_json_value_fails::<Sut>(json!("   "));
+    }
+
+    #[test]
+    fn add_zero_unhardened() {
+        let sut = Sut::from_global_key_space(42).unwrap();
+        assert_eq!(sut.checked_add_n_to_global(0u32).unwrap(), sut);
+    }
+
+    #[test]
+    fn add_zero_unsecurified_hardened() {
+        let sut = Sut::from_global_key_space(42 + GLOBAL_OFFSET_HARDENED).unwrap();
+        assert_eq!(sut.checked_add_n_to_global(0u32).unwrap(), sut);
+    }
+
+    #[test]
+    fn add_zero_securified() {
+        let sut = Sut::from_global_key_space(42 + GLOBAL_OFFSET_SECURIFIED).unwrap();
+        assert_eq!(sut.checked_add_n_to_global(0u32).unwrap(), sut);
+    }
+
+    #[test]
+    fn add_one() {
+        let sut = Sut::from_global_key_space(42).unwrap();
+        assert_eq!(
+            sut.checked_add_one_to_global().unwrap(),
+            Sut::from_global_key_space(43).unwrap()
+        );
+    }
+
+    #[test]
+    fn add_one_unsecurified_unhardened() {
+        let sut = Sut::from_global_key_space(42).unwrap();
+        assert_eq!(
+            sut.checked_add_one_to_global().unwrap(),
+            Sut::from_global_key_space(43).unwrap()
+        );
+    }
+
+    #[test]
+    fn add_one_unsecurified_unhardened_max_is_err() {
+        let sut = Sut::Unsecurified(Unsecurified::Unhardened(
+            Unhardened::from_local_key_space(Unhardened::MAX_LOCAL).unwrap(),
+        ));
+        assert!(sut.checked_add_one_to_global().is_err());
+    }
+
+    #[test]
+    fn add_one_unsecurified_hardened() {
+        let sut = Sut::from_global_key_space(42 + GLOBAL_OFFSET_HARDENED).unwrap();
+        assert_eq!(
+            sut.checked_add_one_to_global().unwrap(),
+            Sut::from_global_key_space(43 + GLOBAL_OFFSET_HARDENED).unwrap()
+        );
+    }
+
+    #[test]
+    fn add_one_securified() {
+        let sut = Sut::from_global_key_space(42 + GLOBAL_OFFSET_SECURIFIED).unwrap();
+        assert_eq!(
+            sut.checked_add_one_to_global().unwrap(),
+            Sut::from_global_key_space(43 + GLOBAL_OFFSET_SECURIFIED).unwrap()
+        );
+    }
+
+    #[test]
+    fn add_three_unsecurified_unhardened() {
+        let sut = Sut::from_global_key_space(42).unwrap();
+        assert_eq!(
+            sut.checked_add_n_to_global(3).unwrap(),
+            Sut::from_global_key_space(45).unwrap()
+        );
+    }
+
+    #[test]
+    fn add_three_unsecurified_hardened() {
+        let sut = Sut::from_global_key_space(42 + GLOBAL_OFFSET_HARDENED).unwrap();
+        assert_eq!(
+            sut.checked_add_n_to_global(3).unwrap(),
+            Sut::from_global_key_space(45 + GLOBAL_OFFSET_HARDENED).unwrap()
+        );
+    }
+
+    #[test]
+    fn add_three_securified() {
+        let sut = Sut::from_global_key_space(42 + GLOBAL_OFFSET_SECURIFIED).unwrap();
+        assert_eq!(
+            sut.checked_add_n_to_global(3).unwrap(),
+            Sut::from_global_key_space(45 + GLOBAL_OFFSET_SECURIFIED).unwrap()
+        );
     }
 }

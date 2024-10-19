@@ -26,6 +26,9 @@ pub enum CommonError {
     #[error("Invalid Suffix")]
     InvalidSuffix,
 
+    #[error("Cannot add to index since it would change key space")]
+    CannotAddMoreToIndexSinceItWouldChangeKeySpace,
+
     #[error("NonHardenedIndex")]
     NonHardenedIndex,
 

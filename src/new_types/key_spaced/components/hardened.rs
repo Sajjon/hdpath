@@ -447,13 +447,14 @@ mod tests {
     }
 
     #[test]
-    fn add_max_to_zero_is_ok() {
+    fn add_max_to_zero_is_err_since_it_changes_key_space() {
         let sut = Sut::from_global_key_space(GLOBAL_OFFSET_HARDENED).unwrap();
         assert_eq!(sut.map_to_local_key_space().index(), U31::from(0));
-        assert_eq!(
-            sut.checked_add_n_to_global(Sut::MAX_LOCAL).unwrap(),
-            Sut::from_global_key_space(Sut::MAX_LOCAL + GLOBAL_OFFSET_HARDENED).unwrap()
-        );
+
+        assert!(matches!(
+            sut.checked_add_n_to_global(Sut::MAX_LOCAL),
+            Err(CommonError::CannotAddMoreToIndexSinceItWouldChangeKeySpace)
+        ));
     }
 
     #[test]

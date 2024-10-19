@@ -395,12 +395,12 @@ mod tests {
     }
 
     #[test]
-    fn add_max_to_zero_is_ok() {
+    fn add_max_to_zero_is_err_since_it_changes_key_space() {
         let sut = Sut::from_global_key_space(0).unwrap();
-        assert_eq!(
-            sut.checked_add_n_to_global(Sut::MAX_LOCAL).unwrap(),
-            Sut::from_global_key_space(Sut::MAX_LOCAL).unwrap()
-        );
+        assert!(matches!(
+            sut.checked_add_n_to_global(Sut::MAX_LOCAL),
+            Err(CommonError::CannotAddMoreToIndexSinceItWouldChangeKeySpace)
+        ));
     }
 
     #[test]
