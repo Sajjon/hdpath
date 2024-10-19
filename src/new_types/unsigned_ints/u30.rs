@@ -12,8 +12,7 @@ impl U30 {
 impl U30 {
     pub const MAX: u32 = U30_MAX;
 
-    #[allow(unused)]
-    fn checked_add(&self, rhs: &Self) -> Result<Self> {
+    pub fn checked_add(&self, rhs: &Self) -> Result<Self> {
         Self::try_from(**self + **rhs)
     }
 }
