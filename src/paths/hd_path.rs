@@ -27,34 +27,6 @@ impl HDPath {
     }
 }
 
-impl TryFrom<HDPath> for UnvalidatedCAP26Path {
-    type Error = CommonError;
-
-    fn try_from(path: HDPath) -> Result<Self> {
-        let components = &path.0;
-        if components.len() != 6 {
-            return Err(CommonError::InvalidLength);
-        }
-        if components[0] != PURPOSE {
-            return Err(CommonError::InvalidPurpose);
-        }
-        if components[1] != COIN_TYPE {
-            return Err(CommonError::InvalidCoinType);
-        }
-        let network_id = NetworkID::try_from(components[2].index_in_local_key_space())?;
-        let entity_kind = CAP26EntityKind::try_from(components[3].index_in_local_key_space())?;
-        let key_kind = CAP26KeyKind::try_from(components[4].index_in_local_key_space())?;
-        let hardened = Hardened::try_from(components[5])?;
-
-        Ok(UnvalidatedCAP26Path {
-            network_id,
-            entity_kind,
-            key_kind,
-            index: hardened,
-        })
-    }
-}
-
 impl FromBIP32Str for HDPath {
     fn from_bip32_string(s: &str) -> Result<Self> {
         let mut s = s;
@@ -114,12 +86,18 @@ impl FromStr for HDPath {
 
 #[cfg(test)]
 mod tests {
-    // use super::*;
+    use super::*;
 
-    // type Sut = HDPath;
+    type Sut = HDPath;
 
     #[test]
     fn display() {
         // assert_eq!(Sut::default().to_string(), "");
+    }
+
+    #[test]
+    fn account_path() {
+        let hdpath = Sut::from_str("m/44H/1022H/1H/525H/1460H/0H").unwrap();
+        assert_eq!(hdpath, CAP26AccountPath::sample().to_hd_path());
     }
 }

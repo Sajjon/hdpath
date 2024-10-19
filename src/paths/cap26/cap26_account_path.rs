@@ -57,16 +57,6 @@ impl NewEntityPath for CAP26AccountPath {
     }
 }
 
-/// A derivation path consisting of CAP26 components, alas, not validated
-/// as canonical.
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
-pub struct UnvalidatedCAP26Path {
-    pub network_id: NetworkID,
-    pub entity_kind: CAP26EntityKind,
-    pub key_kind: CAP26KeyKind,
-    pub index: Hardened,
-}
-
 impl<T: HasEntityKind + NewEntityPath> NewEntityPathCheckingEntityKind for T {
     fn try_from_unvalidated(path: UnvalidatedCAP26Path) -> Result<Self> {
         let entity_kind = path.entity_kind;
@@ -125,7 +115,7 @@ impl From<CAP26KeyKind> for HDPathComponent {
 }
 
 impl CAP26AccountPath {
-    fn to_hd_path(&self) -> HDPath {
+    pub fn to_hd_path(&self) -> HDPath {
         cap26(
             self.network_id,
             Self::entity_kind(),
@@ -204,6 +194,12 @@ mod tests {
     fn from_str() {
         let sut = Sut::from_str("m/44H/1022H/1H/525H/1460H/0H").unwrap();
         assert_eq!(sut, Sut::sample());
+    }
+
+    #[test]
+    fn from_str_securified() {
+        let sut = Sut::from_str("m/44H/1022H/1H/525H/1460H/0S").unwrap();
+        assert_ne!(sut, Sut::sample());
     }
 
     #[test]

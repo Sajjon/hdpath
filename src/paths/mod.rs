@@ -3,7 +3,6 @@ mod bip44_like_path;
 mod cap26;
 mod derivation_path;
 mod hd_path;
-
 mod traits;
 
 pub use account_path::*;
@@ -11,7 +10,6 @@ pub use bip44_like_path::*;
 pub use cap26::*;
 pub use derivation_path::*;
 pub use hd_path::*;
-
 pub use traits::*;
 
 use crate::prelude::*;
