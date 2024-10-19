@@ -438,6 +438,29 @@ mod tests {
     }
 
     #[test]
+    fn cannot_add_one_to_max_unsecurified_unhardened() {
+        assert!(matches!(
+            Sut::Unsecurified(Unsecurified::Unhardened(
+                Unhardened::from_local_key_space(Unhardened::MAX_LOCAL).unwrap()
+            ))
+            .checked_add_n_to_global(1),
+            Err(CommonError::CannotAddMoreToIndexSinceItWouldChangeKeySpace)
+        ))
+    }
+
+    #[test]
+    fn cannot_add_one_to_max_unsecurified_hardened() {
+        assert!(matches!(
+            Sut::Unsecurified(Unsecurified::Hardened(
+                UnsecurifiedHardened::from_local_key_space(UnsecurifiedHardened::MAX_LOCAL)
+                    .unwrap()
+            ))
+            .checked_add_n_to_global(1),
+            Err(CommonError::CannotAddMoreToIndexSinceItWouldChangeKeySpace)
+        ))
+    }
+
+    #[test]
     fn add_one_unsecurified_hardened() {
         let sut = Sut::from_global_key_space(42 + GLOBAL_OFFSET_HARDENED).unwrap();
         assert_eq!(
