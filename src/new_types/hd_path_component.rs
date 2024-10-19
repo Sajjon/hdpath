@@ -78,6 +78,15 @@ impl HDPathComponent {
     }
 }
 
+impl HDPathComponent {
+    pub fn is_unhardened(&self) -> bool {
+        match self {
+            Self::Unsecurified(u) => u.is_unhardened(),
+            Self::Securified(_) => false,
+        }
+    }
+}
+
 impl FromBIP32Str for HDPathComponent {
     fn from_bip32_string(s: &str) -> Result<Self> {
         SecurifiedU30::from_bip32_string(s)
@@ -116,6 +125,23 @@ impl HDPathComponent {
                 Unsecurified::from_local_key_space(u31, is_hardened).map(Self::Unsecurified)
             }
         }
+    }
+}
+
+impl From<NetworkID> for HDPathComponent {
+    fn from(value: NetworkID) -> Self {
+        unsafe { hard(value.discriminant() as u32) }
+    }
+}
+
+impl From<CAP26EntityKind> for HDPathComponent {
+    fn from(value: CAP26EntityKind) -> Self {
+        unsafe { hard(value.discriminant()) }
+    }
+}
+impl From<CAP26KeyKind> for HDPathComponent {
+    fn from(value: CAP26KeyKind) -> Self {
+        unsafe { hard(value.discriminant()) }
     }
 }
 
@@ -167,7 +193,7 @@ mod tests {
     fn securified_from_local() {
         assert_eq!(
             Sut::from_local_key_space(0u32, KeySpace::Securified).unwrap(),
-            Sut::from_global_key_space(0 + GLOBAL_OFFSET_SECURIFIED).unwrap()
+            Sut::from_global_key_space(GLOBAL_OFFSET_SECURIFIED).unwrap()
         );
 
         assert_eq!(

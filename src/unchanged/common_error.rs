@@ -32,6 +32,9 @@ pub enum CommonError {
     #[error("NonHardenedIndex")]
     NonHardenedIndex,
 
+    #[error("Non hardened component found")]
+    CAP26DictatesThatAllIndicesMustBeHardened,
+
     #[error("NonU32Str")]
     NonU32Str,
 

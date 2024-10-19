@@ -32,17 +32,6 @@ impl IsSecurityStateAware for CAP26AccountPath {
     }
 }
 
-pub trait NewEntityPath: Sized {
-    fn new(
-        network_id: impl Into<NetworkID>,
-        key_kind: impl Into<CAP26KeyKind>,
-        index: impl Into<Hardened>,
-    ) -> Self;
-}
-pub trait NewEntityPathCheckingEntityKind: NewEntityPath {
-    fn try_from_unvalidated(path: UnvalidatedCAP26Path) -> Result<Self>;
-}
-
 impl NewEntityPath for CAP26AccountPath {
     fn new(
         network_id: impl Into<NetworkID>,
@@ -54,19 +43,6 @@ impl NewEntityPath for CAP26AccountPath {
             key_kind: key_kind.into(),
             index: index.into(),
         }
-    }
-}
-
-impl<T: HasEntityKind + NewEntityPath> NewEntityPathCheckingEntityKind for T {
-    fn try_from_unvalidated(path: UnvalidatedCAP26Path) -> Result<Self> {
-        let entity_kind = path.entity_kind;
-        if entity_kind != Self::entity_kind() {
-            return Err(CommonError::WrongEntityKind {
-                expected: Self::entity_kind(),
-                found: entity_kind,
-            });
-        }
-        Ok(Self::new(path.network_id, path.key_kind, path.index))
     }
 }
 
@@ -96,21 +72,6 @@ impl HasSampleValues for CAP26AccountPath {
 impl From<CAP26AccountPath> for HDPath {
     fn from(account_path: CAP26AccountPath) -> Self {
         account_path.to_hd_path()
-    }
-}
-impl From<NetworkID> for HDPathComponent {
-    fn from(value: NetworkID) -> Self {
-        unsafe { hard(value.discriminant() as u32) }
-    }
-}
-impl From<CAP26EntityKind> for HDPathComponent {
-    fn from(value: CAP26EntityKind) -> Self {
-        unsafe { hard(value.discriminant()) }
-    }
-}
-impl From<CAP26KeyKind> for HDPathComponent {
-    fn from(value: CAP26KeyKind) -> Self {
-        unsafe { hard(value.discriminant()) }
     }
 }
 
@@ -205,7 +166,7 @@ mod tests {
     #[test]
     fn from_str_persona() {
         assert!(matches!(
-            Sut::from_str("m/44H/1022H/1H/618/1460H/0H"),
+            Sut::from_str("m/44H/1022H/1H/618H/1460H/0H"),
             Err(CommonError::WrongEntityKind {
                 expected: CAP26EntityKind::Account,
                 found: CAP26EntityKind::Identity

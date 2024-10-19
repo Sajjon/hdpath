@@ -15,6 +15,9 @@ impl TryFrom<HDPath> for UnvalidatedCAP26Path {
 
     fn try_from(path: HDPath) -> Result<Self> {
         let components = path.components();
+        if components.iter().any(|c| c.is_unhardened()) {
+            return Err(CommonError::CAP26DictatesThatAllIndicesMustBeHardened);
+        }
         if components.len() != 6 {
             return Err(CommonError::InvalidLength);
         }
@@ -47,6 +50,10 @@ mod tests {
     #[test]
     fn from_str_invalid_purpose() {
         assert!(matches!(
+            Sut::try_from(HDPath::from_str("m/44/1022H/1H/525H/1460H/0H").unwrap()),
+            Err(CommonError::CAP26DictatesThatAllIndicesMustBeHardened)
+        ));
+        assert!(matches!(
             Sut::try_from(HDPath::from_str("m/43H/1022H/1H/525H/1460H/0H").unwrap()),
             Err(CommonError::InvalidPurpose)
         ));
@@ -54,6 +61,10 @@ mod tests {
 
     #[test]
     fn from_str_invalid_cointype() {
+        assert!(matches!(
+            Sut::try_from(HDPath::from_str("m/44H/1022/1H/525H/1460H/0H").unwrap()),
+            Err(CommonError::CAP26DictatesThatAllIndicesMustBeHardened)
+        ));
         assert!(matches!(
             Sut::try_from(HDPath::from_str("m/44H/55555H/1H/525H/1460H/0H").unwrap()),
             Err(CommonError::InvalidCoinType)
@@ -63,6 +74,11 @@ mod tests {
     #[test]
     fn from_str_invalid_network_id() {
         assert!(matches!(
+            Sut::try_from(HDPath::from_str("m/44H/1022H/5555/525H/1460H/0H").unwrap()),
+            Err(CommonError::CAP26DictatesThatAllIndicesMustBeHardened)
+        ));
+
+        assert!(matches!(
             Sut::try_from(HDPath::from_str("m/44H/1022H/5555H/525H/1460H/0H").unwrap()),
             Err(CommonError::InvalidNetworkID)
         ));
@@ -70,6 +86,10 @@ mod tests {
 
     #[test]
     fn from_str_invalid_entity_kind() {
+        assert!(matches!(
+            Sut::try_from(HDPath::from_str("m/44H/1022H/1H/525/1460H/0H").unwrap()),
+            Err(CommonError::CAP26DictatesThatAllIndicesMustBeHardened)
+        ));
         assert!(matches!(
             Sut::try_from(HDPath::from_str("m/44H/1022H/1H/333H/1460H/0H").unwrap()),
             Err(CommonError::InvalidEntityKind)
@@ -79,7 +99,12 @@ mod tests {
     #[test]
     fn from_str_invalid_key_kind() {
         assert!(matches!(
-            Sut::try_from(HDPath::from_str("m/44H/1022H/1H/525/22H/0H").unwrap()),
+            Sut::try_from(HDPath::from_str("m/44H/1022H/1H/525H/1460/0H").unwrap()),
+            Err(CommonError::CAP26DictatesThatAllIndicesMustBeHardened)
+        ));
+
+        assert!(matches!(
+            Sut::try_from(HDPath::from_str("m/44H/1022H/1H/525H/22H/0H").unwrap()),
             Err(CommonError::InvalidKeyKind)
         ));
     }
@@ -88,7 +113,7 @@ mod tests {
     fn from_str_invalid_index_not_hardened() {
         assert!(matches!(
             Sut::try_from(HDPath::from_str("m/44H/1022H/1H/525/1460H/0").unwrap()),
-            Err(CommonError::NonHardenedIndex)
+            Err(CommonError::CAP26DictatesThatAllIndicesMustBeHardened)
         ));
     }
 }
