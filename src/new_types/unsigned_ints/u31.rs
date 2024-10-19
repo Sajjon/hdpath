@@ -15,7 +15,6 @@ impl HasSampleValues for U31 {
 impl U31 {
     pub const MAX: u32 = U31_MAX;
 
-    #[allow(unused)]
     pub fn checked_add(&self, rhs: &Self) -> Result<Self> {
         Self::try_from(**self + **rhs)
     }
