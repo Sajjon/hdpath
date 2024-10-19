@@ -15,24 +15,24 @@ use crate::prelude::*;
 )]
 #[display("{}", self.to_bip32_string())]
 #[debug("{}", self.to_bip32_string_debug())]
-pub struct GetIDPath;
+pub struct CAP26GetIDPath;
 
 pub const GET_ID_LAST: HDPathComponent = unsafe { hard(365) };
-impl GetIDPath {
+impl CAP26GetIDPath {
     pub const PATH: [HDPathComponent; 3] = [PURPOSE, COIN_TYPE, GET_ID_LAST];
 }
 
-impl From<GetIDPath> for HDPath {
-    fn from(_: GetIDPath) -> Self {
-        Self::new(Vec::from_iter(GetIDPath::PATH))
+impl From<CAP26GetIDPath> for HDPath {
+    fn from(_: CAP26GetIDPath) -> Self {
+        Self::new(Vec::from_iter(CAP26GetIDPath::PATH))
     }
 }
-impl GetIDPath {
+impl CAP26GetIDPath {
     fn to_hd_path(&self) -> HDPath {
         HDPath::from(self.clone())
     }
 }
-impl TryFrom<HDPath> for GetIDPath {
+impl TryFrom<HDPath> for CAP26GetIDPath {
     type Error = CommonError;
     fn try_from(path: HDPath) -> Result<Self> {
         let _self = Self;
@@ -44,7 +44,7 @@ impl TryFrom<HDPath> for GetIDPath {
     }
 }
 
-impl ToBIP32Str for GetIDPath {
+impl ToBIP32Str for CAP26GetIDPath {
     fn to_bip32_string(&self) -> String {
         self.to_hd_path().to_bip32_string()
     }
@@ -52,17 +52,26 @@ impl ToBIP32Str for GetIDPath {
         self.to_hd_path().to_bip32_string_debug()
     }
 }
-impl FromBIP32Str for GetIDPath {
+impl FromBIP32Str for CAP26GetIDPath {
     fn from_bip32_string(s: &str) -> Result<Self> {
         HDPath::from_bip32_string(s).and_then(Self::try_from)
     }
 }
-impl FromStr for GetIDPath {
+impl FromStr for CAP26GetIDPath {
     type Err = CommonError;
 
     fn from_str(s: &str) -> Result<Self> {
         Self::from_bip32_string(s)
     }
+}
+
+use blake2::digest::{consts::U32, Digest};
+use blake2::Blake2b;
+
+pub type Blake2b256 = Blake2b<U32>;
+
+pub fn blake2b_256_hash<T: AsRef<[u8]>>(data: T) -> [u8; 32] {
+    Blake2b256::digest(data).into()
 }
 
 #[cfg(test)]
@@ -71,7 +80,7 @@ mod tests {
 
     use super::*;
 
-    type Sut = GetIDPath;
+    type Sut = CAP26GetIDPath;
 
     #[test]
     fn display() {
@@ -134,5 +143,13 @@ mod tests {
         assert_json_value_fails::<Sut>(json!("2'"));
         assert_json_value_fails::<Sut>(json!("2X"));
         assert_json_value_fails::<Sut>(json!("   "));
+    }
+
+    #[test]
+    fn test_blake2b() {
+        assert_eq!(
+            "48f1bd08444b5e713db9e14caac2faae71836786ac94d645b00679728202a935",
+            hex::encode(blake2b_256_hash("Hello Radix".as_bytes()))
+        );
     }
 }

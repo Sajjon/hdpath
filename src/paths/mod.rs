@@ -1,4 +1,4 @@
-mod any_account_path;
+mod account_path;
 mod bip44_like_path;
 mod cap26;
 mod derivation_path;
@@ -6,7 +6,7 @@ mod hd_path;
 
 mod traits;
 
-pub use any_account_path::*;
+pub use account_path::*;
 pub use bip44_like_path::*;
 pub use cap26::*;
 pub use derivation_path::*;

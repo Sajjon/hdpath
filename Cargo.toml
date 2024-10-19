@@ -45,3 +45,4 @@ bip39 = { git = "https://github.com/rust-bitcoin/rust-bip39", rev = "a30760beac2
 ] }
 zeroize = { version = "1.8.1", features = ["derive"] }
 hex = "0.4.3"
+blake2 = { version = "0.10.6", default-features = false }

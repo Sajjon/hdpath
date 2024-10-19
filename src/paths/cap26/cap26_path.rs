@@ -15,7 +15,7 @@ use crate::prelude::*;
 )]
 pub enum CAP26Path {
     // #[display("{value}")]
-    GetID { value: GetIDPath },
+    GetID { value: CAP26GetIDPath },
     // #[display("{value}")]
     Account { value: CAP26AccountPath },
     // #[display("{value}")]
