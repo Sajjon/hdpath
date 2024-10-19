@@ -28,7 +28,8 @@ impl HDPath {
 }
 
 impl FromBIP32Str for HDPath {
-    fn from_bip32_string(s: &str) -> Result<Self> {
+    fn from_bip32_string(s: impl AsRef<str>) -> Result<Self> {
+        let s = s.as_ref();
         let mut s = s;
         if s.starts_with("m/") {
             s = &s[2..]
@@ -79,7 +80,7 @@ impl FromStr for HDPath {
 }
 
 // impl<T: TryFromHDPath> FromBIP32Str for T {
-//     fn from_bip32_string(s: &str) -> Result<Self> {
+//     fn from_bip32_string(s: impl AsRef<str>) -> Result<Self> {
 //         todo!()
 //     }
 // }

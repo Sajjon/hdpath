@@ -103,7 +103,7 @@ impl ToBIP32Str for CAP26IdentityPath {
 }
 
 impl FromBIP32Str for CAP26IdentityPath {
-    fn from_bip32_string(s: &str) -> Result<Self> {
+    fn from_bip32_string(s: impl AsRef<str>) -> Result<Self> {
         HDPath::from_bip32_string(s).and_then(Self::try_from)
     }
 }

@@ -67,7 +67,8 @@ impl FromGlobalKeySpace for Hardened {
 }
 
 impl FromBIP32Str for Hardened {
-    fn from_bip32_string(s: &str) -> Result<Self> {
+    fn from_bip32_string(s: impl AsRef<str>) -> Result<Self> {
+        let s = s.as_ref();
         SecurifiedU30::from_bip32_string(s)
             .map(Self::Securified)
             .or(UnsecurifiedHardened::from_bip32_string(s).map(Self::Unsecurified))

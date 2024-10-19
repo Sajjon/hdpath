@@ -28,7 +28,7 @@ impl From<CAP26GetIDPath> for HDPath {
     }
 }
 impl CAP26GetIDPath {
-    fn to_hd_path(&self) -> HDPath {
+    pub fn to_hd_path(&self) -> HDPath {
         HDPath::from(self.clone())
     }
 }
@@ -53,7 +53,7 @@ impl ToBIP32Str for CAP26GetIDPath {
     }
 }
 impl FromBIP32Str for CAP26GetIDPath {
-    fn from_bip32_string(s: &str) -> Result<Self> {
+    fn from_bip32_string(s: impl AsRef<str>) -> Result<Self> {
         HDPath::from_bip32_string(s).and_then(Self::try_from)
     }
 }

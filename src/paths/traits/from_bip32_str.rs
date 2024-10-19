@@ -1,11 +1,12 @@
 use crate::prelude::*;
 
 pub trait FromBIP32Str: Sized {
-    fn from_bip32_string(s: &str) -> Result<Self>;
+    fn from_bip32_string(s: impl AsRef<str>) -> Result<Self>;
 }
 
 impl<T: IsPathComponentStringConvertible + FromLocalKeySpace> FromBIP32Str for T {
-    fn from_bip32_string(s: &str) -> Result<T> {
+    fn from_bip32_string(s: impl AsRef<str>) -> Result<T> {
+        let s = s.as_ref();
         let suffix_min_len =
             std::cmp::min(T::CANONICAL_SUFFIX.len(), T::NON_CANONICAL_SUFFIXES.len());
         let min_len = suffix_min_len + 1;

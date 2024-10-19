@@ -98,7 +98,8 @@ impl TryFrom<HDPathComponent> for Unsecurified {
 }
 
 impl FromBIP32Str for Unsecurified {
-    fn from_bip32_string(s: &str) -> Result<Self> {
+    fn from_bip32_string(s: impl AsRef<str>) -> Result<Self> {
+        let s = s.as_ref();
         UnsecurifiedHardened::from_bip32_string(s)
             .map(Self::Hardened)
             .or(Unhardened::from_bip32_string(s).map(Self::Unhardened))
