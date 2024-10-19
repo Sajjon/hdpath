@@ -22,6 +22,9 @@ impl HDPath {
     pub const fn new(components: Vec<HDPathComponent>) -> Self {
         Self(components)
     }
+    pub fn components(&self) -> &[HDPathComponent] {
+        &self.0
+    }
 }
 
 impl TryFrom<HDPath> for UnvalidatedCAP26Path {

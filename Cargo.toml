@@ -5,7 +5,17 @@ edition = "2021"
 
 [dependencies]
 assert-json-diff = "2.0.2"
-derive_more = { version = "1.0.0", features = ["add", "as_ref", "debug", "deref", "deref_mut", "display", "from", "from_str", "mul"] }
+derive_more = { version = "1.0.0", features = [
+    "add",
+    "as_ref",
+    "debug",
+    "deref",
+    "deref_mut",
+    "display",
+    "from",
+    "from_str",
+    "mul",
+] }
 enum-as-inner = "0.6.1"
 itertools = "0.13.0"
 num-traits = "0.2.19"
@@ -16,3 +26,22 @@ serde_repr = "0.1.19"
 serde_with = { version = "3.11.0", features = ["macros"] }
 strum = { version = "0.26.3", features = ["derive", "strum_macros"] }
 thiserror = "1.0.64"
+
+# SLIP10 implementation
+# iota_crypto = "0.23.1"
+iota-crypto = { git = "https://github.com/iotaledger/crypto.rs", rev = "47460d64fd0514af136ea1c2c6f3aa29ed89d1b8", features = [
+    "slip10",
+    "ed25519",
+    "secp256k1",
+    "x25519",
+] }
+
+
+# bip39 = "2.0.0"
+bip39 = { git = "https://github.com/rust-bitcoin/rust-bip39", rev = "a30760beac21d595b2bda376df4f4e6bf029bcc5", features = [
+    "serde",
+    "zeroize",
+    "french",
+] }
+zeroize = { version = "1.8.1", features = ["derive"] }
+hex = "0.4.3"

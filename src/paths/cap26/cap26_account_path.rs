@@ -189,6 +189,12 @@ mod tests {
     }
 
     #[test]
+    fn to_bip32_path() {
+        let sut = Sut::sample();
+        assert_eq!(format!("{}", sut), "m/44H/1022H/1H/525H/1460H/0H");
+    }
+
+    #[test]
     fn from_str() {
         let sut = Sut::from_str("m/44H/1022H/1H/525H/1460H/0H").unwrap();
         assert_eq!(sut, Sut::sample());
