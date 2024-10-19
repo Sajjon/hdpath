@@ -1,22 +1,39 @@
 use crate::prelude::*;
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Deref, AsRef)]
-pub struct U31(u32);
-
-impl HasSampleValues for U31 {
-    fn sample() -> Self {
-        Self::try_from(31).unwrap()
+pub struct U30(u32);
+impl U30 {
+    pub(crate) const unsafe fn new(value: u32) -> Self {
+        Self(value)
     }
-    fn sample_other() -> Self {
-        Self::try_from(U31_MAX).unwrap()
+}
+impl From<U30> for U31 {
+    fn from(value: U30) -> Self {
+        Self::try_from(value.0).unwrap()
+    }
+}
+impl TryFrom<U31> for U30 {
+    type Error = CommonError;
+    fn try_from(value: U31) -> Result<Self, Self::Error> {
+        let large: u32 = value.into();
+        Self::try_from(large)
     }
 }
 
-impl TryFrom<u32> for U31 {
+impl HasSampleValues for U30 {
+    fn sample() -> Self {
+        Self::try_from(30).unwrap()
+    }
+    fn sample_other() -> Self {
+        Self::try_from(U30_MAX).unwrap()
+    }
+}
+
+impl TryFrom<u32> for U30 {
     type Error = CommonError;
 
     fn try_from(value: u32) -> Result<Self> {
-        if value <= U31_MAX {
+        if value <= U30_MAX {
             Ok(Self(value))
         } else {
             Err(CommonError::Overflow)
@@ -28,7 +45,7 @@ impl TryFrom<u32> for U31 {
 mod tests {
     use super::*;
 
-    type Sut = U30;
+    type Sut = U31;
 
     #[test]
     fn equality() {
@@ -64,12 +81,12 @@ mod tests {
     fn try_from_valid() {
         assert_eq!(*Sut::try_from(0).unwrap(), 0);
         assert_eq!(*Sut::try_from(1).unwrap(), 1);
-        assert_eq!(*Sut::try_from(U30_MAX - 1).unwrap(), U30_MAX - 1);
-        assert_eq!(*Sut::try_from(U30_MAX).unwrap(), U30_MAX);
+        assert_eq!(*Sut::try_from(U31_MAX - 1).unwrap(), U31_MAX - 1);
+        assert_eq!(*Sut::try_from(U31_MAX).unwrap(), U31_MAX);
     }
 
     #[test]
     fn try_from_overflow() {
-        assert!(Sut::try_from(U30_MAX + 1).is_err());
+        assert!(Sut::try_from(U31_MAX + 1).is_err());
     }
 }

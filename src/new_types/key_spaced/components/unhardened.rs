@@ -47,11 +47,12 @@ impl HasOffsetFromGlobalKeySpace for Unhardened {
 }
 
 impl FromLocalKeySpace for Unhardened {
-    /// 0 => Ok(0)
-    /// 1 => Ok(1)
-    /// GLOBAL_OFFSET_HARDENED + 5 (5) => Err
-    fn from_local_key_space(value: u32) -> Result<Self> {
-        U31::try_from(value).map(Self)
+    type Magnitude = U31;
+}
+
+impl From<U31> for Unhardened {
+    fn from(value: U31) -> Self {
+        Self(value)
     }
 }
 

@@ -9,6 +9,6 @@ impl<T: FromLocalKeySpace + HasOffsetFromGlobalKeySpace> FromGlobalKeySpace for 
         value
             .checked_sub(T::offset_from_global_key_space())
             .ok_or(CommonError::IndexInGlobalKeySpaceIsLowerThanOffset)
-            .and_then(Self::from_local_key_space)
+            .and_then(T::from_local_key_space)
     }
 }

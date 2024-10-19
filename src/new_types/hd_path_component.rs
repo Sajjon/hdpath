@@ -114,15 +114,17 @@ impl IsMappableToGlobalKeySpace for HDPathComponent {
 
 impl HDPathComponent {
     pub fn from_local_key_space(
-        value: u32,
-        is_hardened: bool,
-        is_securified: bool,
+        u31: impl TryInto<U31, Error = CommonError>,
+        key_space: KeySpace,
     ) -> Result<Self> {
-        assert!(!is_securified || is_hardened);
-        if is_securified {
-            SecurifiedU30::from_local_key_space(value).map(Self::Securified)
-        } else {
-            Unsecurified::from_local_key_space(value, is_hardened).map(Self::Unsecurified)
+        match key_space {
+            KeySpace::Securified => {
+                let u31 = u31.try_into().map_err(|_| CommonError::Overflow)?;
+                SecurifiedU30::from_local_key_space(u31).map(Self::Securified)
+            }
+            KeySpace::Unsecurified { is_hardened } => {
+                Unsecurified::from_local_key_space(u31, is_hardened).map(Self::Unsecurified)
+            }
         }
     }
 }
@@ -168,12 +170,12 @@ mod tests {
     #[test]
     fn unsecurified_unhardened_from_local() {
         assert_eq!(
-            Sut::from_local_key_space(0, false, false).unwrap(),
+            Sut::from_local_key_space(0, KeySpace::Unsecurified { is_hardened: false }).unwrap(),
             Sut::from_global_key_space(0).unwrap()
         );
 
         assert_eq!(
-            Sut::from_local_key_space(3, false, false).unwrap(),
+            Sut::from_local_key_space(3, KeySpace::Unsecurified { is_hardened: false }).unwrap(),
             Sut::from_global_key_space(3).unwrap()
         );
     }
@@ -181,12 +183,12 @@ mod tests {
     #[test]
     fn unsecurified_hardened_from_local() {
         assert_eq!(
-            Sut::from_local_key_space(0, true, false).unwrap(),
+            Sut::from_local_key_space(0, KeySpace::Unsecurified { is_hardened: true }).unwrap(),
             Sut::from_global_key_space(GLOBAL_OFFSET_HARDENED).unwrap()
         );
 
         assert_eq!(
-            Sut::from_local_key_space(3, true, false).unwrap(),
+            Sut::from_local_key_space(3, KeySpace::Unsecurified { is_hardened: true }).unwrap(),
             Sut::from_global_key_space(3 + GLOBAL_OFFSET_HARDENED).unwrap()
         );
     }
@@ -194,12 +196,12 @@ mod tests {
     #[test]
     fn securified_hardened_from_local() {
         assert_eq!(
-            Sut::from_local_key_space(0, true, true).unwrap(),
+            Sut::from_local_key_space(0, KeySpace::Securified).unwrap(),
             Sut::from_global_key_space(GLOBAL_OFFSET_SECURIFIED).unwrap()
         );
 
         assert_eq!(
-            Sut::from_local_key_space(3, true, true).unwrap(),
+            Sut::from_local_key_space(3, KeySpace::Securified).unwrap(),
             Sut::from_global_key_space(3 + GLOBAL_OFFSET_SECURIFIED).unwrap()
         );
     }
@@ -362,11 +364,5 @@ mod tests {
         assert_json_value_fails::<Sut>(json!("^"));
         assert_json_value_fails::<Sut>(json!("2X"));
         assert_json_value_fails::<Sut>(json!("   "));
-    }
-
-    #[test]
-    #[should_panic]
-    fn from_local_key_space_panics_for_invalid() {
-        _ = Sut::from_local_key_space(0, false, true);
     }
 }

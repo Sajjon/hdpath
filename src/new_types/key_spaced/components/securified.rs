@@ -41,11 +41,11 @@ impl HasOffsetFromGlobalKeySpace for SecurifiedU30 {
 }
 
 impl FromLocalKeySpace for SecurifiedU30 {
-    /// 0^ => Ok(0)
-    /// 1^ => Ok(1)
-    /// 2^31 + 2^30 + 5 (5^) => Err
-    fn from_local_key_space(value: u32) -> Result<Self> {
-        U30::try_from(value).map(Self)
+    type Magnitude = U30;
+}
+impl From<U30> for SecurifiedU30 {
+    fn from(value: U30) -> Self {
+        Self(value)
     }
 }
 
@@ -202,6 +202,13 @@ mod tests {
         assert!(Sut::from_global_key_space(0).is_err());
         assert!(Sut::from_global_key_space(GLOBAL_OFFSET_HARDENED).is_err());
         assert!(Sut::from_global_key_space(GLOBAL_OFFSET_SECURIFIED - 1).is_err());
+    }
+
+    #[test]
+    fn from_local_invalid() {
+        assert!(Sut::from_local_key_space(U32_MAX).is_err());
+        assert!(Sut::from_local_key_space(U31_MAX).is_err());
+        assert!(Sut::from_local_key_space(U30_MAX + 1).is_err());
     }
 
     #[test]

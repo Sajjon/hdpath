@@ -21,7 +21,6 @@ impl<T: IsPathComponentStringConvertible + FromLocalKeySpace> FromBIP32Str for T
         let value: u32 = s[..s.len() - suffix_min_len]
             .parse()
             .map_err(|_| CommonError::NonU32Str)?;
-
         T::from_local_key_space(value)
     }
 }

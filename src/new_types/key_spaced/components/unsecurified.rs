@@ -67,11 +67,16 @@ impl From<UnsecurifiedHardened> for Unsecurified {
 }
 
 impl Unsecurified {
-    pub fn from_local_key_space(value: u32, is_hardened: bool) -> Result<Self> {
+    pub fn from_local_key_space(
+        u31: impl TryInto<U31, Error = CommonError>,
+        is_hardened: bool,
+    ) -> Result<Self> {
         if is_hardened {
-            UnsecurifiedHardened::from_local_key_space(value).map(Self::Hardened)
+            TryInto::<U31>::try_into(u31)
+                .and_then(UnsecurifiedHardened::from_local_key_space)
+                .map(Self::Hardened)
         } else {
-            Unhardened::from_local_key_space(value).map(Self::Unhardened)
+            Unhardened::from_local_key_space(u31).map(Self::Unhardened)
         }
     }
 }

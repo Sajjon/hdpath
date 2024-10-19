@@ -40,11 +40,12 @@ impl UnsecurifiedHardened {
     }
 }
 impl FromLocalKeySpace for UnsecurifiedHardened {
-    /// 0' => Ok(0)
-    /// 1' => Ok(1)
-    /// 2^31 + 5 (5') => Err
-    fn from_local_key_space(value: u32) -> Result<Self> {
-        U30::try_from(value).map(Self::new)
+    type Magnitude = U30;
+}
+
+impl From<U30> for UnsecurifiedHardened {
+    fn from(value: U30) -> Self {
+        Self(value)
     }
 }
 

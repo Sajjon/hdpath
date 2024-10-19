@@ -1,27 +1,26 @@
 use crate::prelude::*;
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Deref, AsRef)]
-pub struct U30(u32);
-impl U30 {
-    pub(crate) const unsafe fn new(value: u32) -> Self {
-        Self(value)
-    }
-}
+pub struct U31(u32);
 
-impl HasSampleValues for U30 {
+impl HasSampleValues for U31 {
     fn sample() -> Self {
-        Self::try_from(30).unwrap()
+        Self::try_from(31).unwrap()
     }
     fn sample_other() -> Self {
-        Self::try_from(U30_MAX).unwrap()
+        Self::try_from(U31_MAX).unwrap()
     }
 }
-
-impl TryFrom<u32> for U30 {
+impl From<U31> for u32 {
+    fn from(value: U31) -> Self {
+        value.0
+    }
+}
+impl TryFrom<u32> for U31 {
     type Error = CommonError;
 
     fn try_from(value: u32) -> Result<Self> {
-        if value <= U30_MAX {
+        if value <= U31_MAX {
             Ok(Self(value))
         } else {
             Err(CommonError::Overflow)
@@ -33,7 +32,7 @@ impl TryFrom<u32> for U30 {
 mod tests {
     use super::*;
 
-    type Sut = U31;
+    type Sut = U30;
 
     #[test]
     fn equality() {
@@ -69,12 +68,12 @@ mod tests {
     fn try_from_valid() {
         assert_eq!(*Sut::try_from(0).unwrap(), 0);
         assert_eq!(*Sut::try_from(1).unwrap(), 1);
-        assert_eq!(*Sut::try_from(U31_MAX - 1).unwrap(), U31_MAX - 1);
-        assert_eq!(*Sut::try_from(U31_MAX).unwrap(), U31_MAX);
+        assert_eq!(*Sut::try_from(U30_MAX - 1).unwrap(), U30_MAX - 1);
+        assert_eq!(*Sut::try_from(U30_MAX).unwrap(), U30_MAX);
     }
 
     #[test]
     fn try_from_overflow() {
-        assert!(Sut::try_from(U31_MAX + 1).is_err());
+        assert!(Sut::try_from(U30_MAX + 1).is_err());
     }
 }
