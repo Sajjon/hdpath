@@ -4,8 +4,9 @@ use crate::prelude::*;
 
 use bip39::Mnemonic;
 use crypto::{
-    keys::slip10::{self as IotaSlip10, Hardened as IotaSlip10PathComponent, Slip10},
+    keys::slip10::{self as IotaSlip10, Hardened as IotaSlip10PathComponent},
     signatures::ed25519 as IotaSlip10Ed25519,
+    signatures::secp256k1_ecdsa as IotaSlip10Secp256k1,
 };
 use zeroize::Zeroizing;
 
@@ -33,6 +34,29 @@ impl Ed25519PrivateKey {
     }
 }
 
+pub struct Secp256k1PublicKey(IotaSlip10Secp256k1::PublicKey);
+impl Secp256k1PublicKey {
+    pub fn to_bytes(&self) -> [u8; 33] {
+        self.0.to_bytes()
+    }
+    pub fn to_hex(&self) -> String {
+        hex::encode(self.to_bytes())
+    }
+}
+
+pub struct Secp256k1PrivateKey(IotaSlip10Secp256k1::SecretKey);
+impl Secp256k1PrivateKey {
+    pub fn public_key(&self) -> Secp256k1PublicKey {
+        Secp256k1PublicKey(self.0.public_key())
+    }
+    pub fn to_bytes(&self) -> Zeroizing<[u8; 32]> {
+        self.0.to_bytes()
+    }
+    pub fn to_hex(&self) -> String {
+        hex::encode(self.to_bytes())
+    }
+}
+
 impl HDPath {
     fn hardened_chain(&self) -> Vec<IotaSlip10PathComponent> {
         self.components()
@@ -44,7 +68,7 @@ impl HDPath {
 }
 
 impl BIP39Seed {
-    fn derive_slip10_private_key<K, I>(&self, chain: I) -> IotaSlip10::Slip10<K>
+    fn _derive_slip10_private_key<K, I>(&self, chain: I) -> IotaSlip10::Slip10<K>
     where
         K: IotaSlip10::IsSecretKey + IotaSlip10::WithSegment<<I as Iterator>::Item>,
         I: Iterator,
@@ -54,18 +78,28 @@ impl BIP39Seed {
         iota_seed.derive(chain)
     }
 
-    fn derive_ed25519_private_key(
-        &self,
-        path: &HDPath,
-    ) -> Slip10<crypto::signatures::ed25519::SecretKey> {
-        self.derive_slip10_private_key::<IotaSlip10Ed25519::SecretKey, _>(
-            path.hardened_chain().into_iter(),
-        )
+    fn _derive_ed25519_private_key(&self, path: &HDPath) -> IotaSlip10Ed25519::SecretKey {
+        self._derive_slip10_private_key::<_, _>(path.hardened_chain().into_iter())
+            .secret_key()
     }
 
-    pub fn derive_private_key(&self, hd_path: impl Into<HDPath>) -> Ed25519PrivateKey {
-        let key = self.derive_ed25519_private_key(&hd_path.into());
-        let inner = key.secret_key();
+    fn _derive_secp256k1_private_key(&self, path: &HDPath) -> IotaSlip10Secp256k1::SecretKey {
+        self._derive_slip10_private_key::<_, _>(
+            path.components()
+                .iter()
+                .cloned()
+                .map(|c| c.map_to_global_key_space()),
+        )
+        .secret_key()
+    }
+
+    pub fn derive_secp256k1_private_key(&self, hd_path: impl Into<HDPath>) -> Secp256k1PrivateKey {
+        let inner = self._derive_secp256k1_private_key(&hd_path.into());
+        Secp256k1PrivateKey(inner)
+    }
+
+    pub fn derive_ed25519_private_key(&self, hd_path: impl Into<HDPath>) -> Ed25519PrivateKey {
+        let inner = self._derive_ed25519_private_key(&hd_path.into());
         Ed25519PrivateKey(inner)
     }
 }
@@ -87,7 +121,7 @@ impl FactorSourceIDFromHash {
     ) -> String {
         let mnemonic = Mnemonic::from_str(mnemonic.as_ref()).unwrap();
         let seed = mnemonic.to_bip39_seed(passphrase.as_ref());
-        let private_key = seed.derive_private_key(CAP26GetIDPath);
+        let private_key = seed.derive_ed25519_private_key(CAP26GetIDPath);
         let public_key_bytes = private_key.public_key().to_bytes();
         let hash = blake2b_256_hash(public_key_bytes);
         hex::encode(hash)
@@ -114,7 +148,7 @@ mod tests {
         let seed = mnemonic.to_bip39_seed(passphrase.as_ref());
         let path = P::from_str(path.as_ref()).unwrap();
         let path: HDPath = path.into();
-        let private_key = seed.derive_private_key(path);
+        let private_key = seed.derive_ed25519_private_key(path);
         assert(&private_key, &private_key.public_key());
     }
 
@@ -171,5 +205,76 @@ mod tests {
             FactorSourceIDFromHash::from_mnemonic_with_passphrase(mnemonic_sample_device, "");
         let expected = "f1a93d324dd0f2bff89963ab81ed6e0c2ee7e18c0827dc1d3576b2d9f26bbd0a";
         assert_eq!(expected, id_from_hash)
+    }
+}
+
+#[cfg(test)]
+mod tests_secp256k1 {
+    use super::*;
+
+    fn test_with_passphrase<P>(
+        mnemonic: impl AsRef<str>,
+        passphrase: impl AsRef<str>,
+        path: impl AsRef<str>,
+        assert: impl Fn(&Secp256k1PrivateKey, &Secp256k1PublicKey),
+    ) where
+        P: FromStr + Into<HDPath>,
+
+        P::Err: std::fmt::Debug,
+    {
+        let mnemonic = Mnemonic::from_str(mnemonic.as_ref()).unwrap();
+        let seed = mnemonic.to_bip39_seed(passphrase.as_ref());
+        let path = P::from_str(path.as_ref()).unwrap();
+        let path: HDPath = path.into();
+        let private_key = seed.derive_secp256k1_private_key(path);
+        assert(&private_key, &private_key.public_key());
+    }
+
+    fn test<P>(
+        mnemonic: impl AsRef<str>,
+        path: impl AsRef<str>,
+        assert: impl Fn(&Secp256k1PrivateKey, &Secp256k1PublicKey),
+    ) where
+        P: FromStr + Into<HDPath>,
+        P::Err: std::fmt::Debug,
+    {
+        test_with_passphrase::<P>(mnemonic, "", path, assert);
+    }
+
+    fn test_assert_key_hexes<P>(
+        mnemonic: impl AsRef<str>,
+        path: impl AsRef<str>,
+        private_key_hex: impl AsRef<str>,
+        public_key_hex: impl AsRef<str>,
+    ) where
+        P: FromStr + Into<HDPath>,
+        P::Err: std::fmt::Debug,
+    {
+        test::<P>(mnemonic, path, |private_key, public_key| {
+            assert_eq!(private_key.to_hex(), private_key_hex.as_ref());
+            assert_eq!(public_key.to_hex(), public_key_hex.as_ref());
+        });
+    }
+
+    #[test]
+    fn bip44() {
+        test_assert_key_hexes::<BIP44LikePath>("pledge rely stick hard snow ice sign source sample pledge rely sample pledge rely sample pledge rely sample pledge rely sample stick sample cactus", "m/44H/1022H/0H/0/5H", "09c5ec59b0cc08d07e5ed4aaee8c583264ffa060563d4b531e15db13d35b2a87", "038c9ae8b50356cfd87b6e8c069c14cbda692578e87cd41291701947a2d1b794c4");
+    }
+
+    #[test]
+    fn bip44_strict_bip44_equip() {
+        test_assert_key_hexes::<BIP44LikePath>(
+            "equip will roof matter pink blind book anxiety banner elbow sun young",
+            "m/44H/1022H/0H/0/0",
+            "623048f7bb88a4d162442b88cdd80c85e4d5933ad9e78523a97de769badb9ab2",
+            "03bc2ec8f3668c869577bf66b7b48f8dee57b833916aa70966fa4a5029b63bb18f",
+        );
+
+        test_assert_key_hexes::<BIP44LikePath>(
+            "equip will roof matter pink blind book anxiety banner elbow sun young",
+            "m/44H/1022H/0H/0/1",
+            "e94b6a64f99a1a143ed570bea9cf896ce82d14f861d0103066e835822037fe6b",
+            "03c8a6a5710b5abba09341c24382de3222913120dee5084e887529bf821f3973e2",
+        );
     }
 }

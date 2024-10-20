@@ -5,6 +5,11 @@ pub struct U30(u32);
 
 impl U30 {
     pub const MAX: u32 = U30_MAX;
+
+    /// # Safety
+    /// Unsafe, does not validate the value to be small enough.
+    ///
+    /// Only use this for tests and constants.
     pub(crate) const unsafe fn new(value: u32) -> Self {
         Self(value)
     }

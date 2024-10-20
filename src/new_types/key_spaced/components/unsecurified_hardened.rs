@@ -38,7 +38,11 @@ impl HasSampleValues for UnsecurifiedHardened {
 }
 
 impl UnsecurifiedHardened {
-    pub const fn new(value: U30) -> Self {
+    /// # Safety
+    /// Unsafe, does not validate the value to be small enough.
+    ///
+    /// Only use this for tests and constants.
+    pub(crate) const unsafe fn new(value: U30) -> Self {
         Self(value)
     }
 }

@@ -73,8 +73,17 @@ impl HDPathComponent {
     fn securified(value: impl Into<SecurifiedU30>) -> Self {
         Self::Securified(value.into())
     }
-    fn unsecurified(value: impl Into<Unsecurified>) -> Self {
-        Self::Unsecurified(value.into())
+
+    pub fn unsecurified(
+        value: impl TryInto<U31, Error = CommonError>,
+        is_hardened: bool,
+    ) -> Result<Self> {
+        let unsecurified = Unsecurified::from_local_key_space(value, is_hardened)?;
+        Ok(Self::Unsecurified(unsecurified))
+    }
+
+    pub fn unsecurified_hardened(value: impl TryInto<U31, Error = CommonError>) -> Result<Self> {
+        Self::unsecurified(value, true)
     }
 }
 
@@ -85,6 +94,12 @@ impl HDPathComponent {
             Self::Securified(_) => false,
         }
     }
+    pub fn is_hardened(&self) -> bool {
+        match self {
+            Self::Unsecurified(u) => u.is_hardened(),
+            Self::Securified(_) => true,
+        }
+    }
 }
 
 impl FromBIP32Str for HDPathComponent {
@@ -92,7 +107,7 @@ impl FromBIP32Str for HDPathComponent {
         let s = s.as_ref();
         SecurifiedU30::from_bip32_string(s)
             .map(Self::securified)
-            .or(Unsecurified::from_bip32_string(s).map(Self::unsecurified))
+            .or(Unsecurified::from_bip32_string(s).map(Self::Unsecurified))
     }
 }
 
@@ -131,18 +146,21 @@ impl HDPathComponent {
 
 impl From<NetworkID> for HDPathComponent {
     fn from(value: NetworkID) -> Self {
-        unsafe { hard(value.discriminant() as u32) }
+        HDPathComponent::unsecurified_hardened(value.discriminant() as u32)
+            .expect("NetworkID values are small so always fit inside U30")
     }
 }
 
 impl From<CAP26EntityKind> for HDPathComponent {
     fn from(value: CAP26EntityKind) -> Self {
-        unsafe { hard(value.discriminant()) }
+        HDPathComponent::unsecurified_hardened(value.discriminant())
+            .expect("CAP26EntityKind values are small so always fit inside U30")
     }
 }
 impl From<CAP26KeyKind> for HDPathComponent {
     fn from(value: CAP26KeyKind) -> Self {
-        unsafe { hard(value.discriminant()) }
+        HDPathComponent::unsecurified_hardened(value.discriminant())
+            .expect("CAP26KeyKind values are small so always fit inside U30")
     }
 }
 

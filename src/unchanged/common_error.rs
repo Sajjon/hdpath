@@ -47,6 +47,12 @@ pub enum CommonError {
     #[error("Index In Global Key Space Is Lower Than Offset")]
     IndexInGlobalKeySpaceIsLowerThanOffset,
 
+    #[error("InvalidBIP44ExpectedAccountComponentToBeHardened")]
+    InvalidBIP44ExpectedAccountComponentToBeHardened,
+
+    #[error("InvalidBIP44ExpectedChangeComponentToNotBeHardened")]
+    InvalidBIP44ExpectedChangeComponentToNotBeHardened,
+
     #[error("WrongEntityKind found: {found:?}, expected: {expected:?}")]
     WrongEntityKind {
         expected: CAP26EntityKind,

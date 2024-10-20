@@ -17,7 +17,6 @@ use crate::prelude::*;
 #[debug("{}", self.to_bip32_string_debug())]
 pub struct CAP26GetIDPath;
 
-pub const GET_ID_LAST: HDPathComponent = unsafe { hard(365) };
 impl CAP26GetIDPath {
     pub const PATH: [HDPathComponent; 3] = [PURPOSE, COIN_TYPE, GET_ID_LAST];
 }

@@ -20,6 +20,16 @@ use crate::prelude::*;
 pub struct Unhardened(U31);
 
 impl Unhardened {
+    /// # Safety
+    /// Unsafe, does not validate the value to be small enough.
+    ///
+    /// Only use this for tests and constants.
+    pub(crate) const unsafe fn new(value: U31) -> Self {
+        Self(value)
+    }
+}
+
+impl Unhardened {
     pub const MAX_LOCAL: u32 = U31::MAX;
 }
 

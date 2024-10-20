@@ -14,6 +14,14 @@ impl HasSampleValues for U31 {
 
 impl U31 {
     pub const MAX: u32 = U31_MAX;
+
+    /// # Safety
+    /// Unsafe, does not validate the value to be small enough.
+    ///
+    /// Only use this for tests and constants.
+    pub(crate) const unsafe fn new(value: u32) -> Self {
+        Self(value)
+    }
 }
 
 impl AddViaDeref for U31 {}

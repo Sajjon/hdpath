@@ -35,6 +35,10 @@ iota-crypto = { git = "https://github.com/iotaledger/crypto.rs", rev = "47460d64
     "x25519",
 ] }
 
+# Transitive dependency of iota_crypto - used to construct PubKey from uncompressed bytes.
+# k256 = "0.13.3"
+k256 = { git = "https://github.com/RustCrypto/elliptic-curves", rev = "e158ce5cf0e9acee2fd76aff2a628334f5c771e5" }
+
 
 # bip39 = "2.0.0"
 bip39 = { git = "https://github.com/rust-bitcoin/rust-bip39", rev = "a30760beac21d595b2bda376df4f4e6bf029bcc5", features = [
