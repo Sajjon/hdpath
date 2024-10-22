@@ -5,7 +5,7 @@ pub struct U31(u32);
 
 impl HasSampleValues for U31 {
     fn sample() -> Self {
-        Self::try_from(237u32).unwrap()
+        Self::from(237u16)
     }
     fn sample_other() -> Self {
         Self::try_from(Self::MAX).unwrap()
@@ -14,23 +14,17 @@ impl HasSampleValues for U31 {
 
 impl U31 {
     pub const MAX: u32 = U31_MAX;
-
-    /// # Safety
-    /// Unsafe, does not validate the value to be small enough.
-    ///
-    /// Only use this for tests and constants.
-    pub(crate) const unsafe fn new(value: u32) -> Self {
-        Self(value)
+    pub const fn new(value: u16) -> Self {
+        Self(value as u32)
     }
 }
 
 impl AddViaDeref for U31 {}
 impl AddSelfViaDeref for U31 {}
 
-#[cfg(test)]
 impl From<u16> for U31 {
     fn from(value: u16) -> Self {
-        Self::try_from(value as u32).unwrap()
+        Self::new(value)
     }
 }
 impl From<U31> for u32 {

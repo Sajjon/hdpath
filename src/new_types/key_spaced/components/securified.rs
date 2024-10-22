@@ -1,5 +1,25 @@
 use crate::prelude::*;
 
+/// Represents a "Securified" index in a BIP32 (SLIP10) path, used as
+/// the last path component in an HDPath for a securified Account or
+/// Persona.
+///
+/// The internal representation hold a non-hardened, so called "local" offset, and at the time of usage, when forming a BIP32 path, we "map" it to a global offset by adding `GLOBAL_OFFSET_HARDENED_SECURIFIED` to
+/// the local index.
+///
+/// We can instantiate a `SecurifiedU30` from a global key space index, or from a local key space index, and we can convert it back to a global key space index.
+///
+/// # Examples
+/// ```
+/// extern crate hdpath;
+/// use hdpath::prelude::*;
+/// // From Global KeySpace
+/// assert_eq!(
+///   SecurifiedU30::from_global_key_space(42 + GLOBAL_OFFSET_HARDENED_SECURIFIED)
+///     .unwrap()
+///     .index_in_local_key_space(),
+///     U31::new(42)
+/// );
 #[derive(
     Clone,
     Copy,
@@ -36,14 +56,17 @@ impl HasSampleValues for SecurifiedU30 {
     }
 }
 
-impl IsMappableToLocalKeySpace for SecurifiedU30 {
-    fn map_to_local_key_space(&self) -> KeySpaceWithLocalIndex {
-        KeySpaceWithLocalIndex::Securified(self.0)
+impl IsInLocalKeySpace for SecurifiedU30 {
+    fn key_space(&self) -> KeySpace {
+        KeySpace::Securified
+    }
+    fn index_in_local_key_space(&self) -> U31 {
+        U31::from(self.0)
     }
 }
 impl HasOffsetFromGlobalKeySpace for SecurifiedU30 {
     fn offset_from_global_key_space() -> u32 {
-        GLOBAL_OFFSET_SECURIFIED
+        GLOBAL_OFFSET_HARDENED_SECURIFIED
     }
 }
 
@@ -236,7 +259,7 @@ mod tests {
     #[test]
     fn from_global_valid() {
         assert_eq!(
-            Sut::from_global_key_space(GLOBAL_OFFSET_SECURIFIED + 1337).unwrap(),
+            Sut::from_global_key_space(GLOBAL_OFFSET_HARDENED_SECURIFIED + 1337).unwrap(),
             Sut::from_local_key_space(1337).unwrap()
         );
     }
@@ -245,7 +268,7 @@ mod tests {
     fn from_global_invalid() {
         assert!(Sut::from_global_key_space(0).is_err());
         assert!(Sut::from_global_key_space(GLOBAL_OFFSET_HARDENED).is_err());
-        assert!(Sut::from_global_key_space(GLOBAL_OFFSET_SECURIFIED - 1).is_err());
+        assert!(Sut::from_global_key_space(GLOBAL_OFFSET_HARDENED_SECURIFIED - 1).is_err());
     }
 
     #[test]
@@ -258,7 +281,7 @@ mod tests {
     #[test]
     fn index_in_local_key_space() {
         assert_eq!(
-            Sut::from_global_key_space(GLOBAL_OFFSET_SECURIFIED + 1337)
+            Sut::from_global_key_space(GLOBAL_OFFSET_HARDENED_SECURIFIED + 1337)
                 .unwrap()
                 .index_in_local_key_space(),
             U31::from(1337)
@@ -268,7 +291,7 @@ mod tests {
     #[test]
     fn map_to_local_key_space_key_space() {
         assert_eq!(
-            Sut::from_global_key_space(GLOBAL_OFFSET_SECURIFIED + 1337)
+            Sut::from_global_key_space(GLOBAL_OFFSET_HARDENED_SECURIFIED + 1337)
                 .unwrap()
                 .key_space(),
             KeySpace::Securified
@@ -281,7 +304,7 @@ mod tests {
             Sut::from_local_key_space(1337)
                 .unwrap()
                 .map_to_global_key_space(),
-            GLOBAL_OFFSET_SECURIFIED + 1337
+            GLOBAL_OFFSET_HARDENED_SECURIFIED + 1337
         );
     }
 

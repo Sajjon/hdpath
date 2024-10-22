@@ -46,9 +46,12 @@ impl HasSampleValues for Unhardened {
     }
 }
 
-impl IsMappableToLocalKeySpace for Unhardened {
-    fn map_to_local_key_space(&self) -> KeySpaceWithLocalIndex {
-        KeySpaceWithLocalIndex::Unsecurified(UnsecurifiedKeySpaceWithLocalIndex::Unhardened(self.0))
+impl IsInLocalKeySpace for Unhardened {
+    fn key_space(&self) -> KeySpace {
+        KeySpace::Unsecurified { is_hardened: false }
+    }
+    fn index_in_local_key_space(&self) -> U31 {
+        self.0
     }
 }
 
@@ -229,10 +232,7 @@ mod tests {
     #[test]
     fn map_to_local_key_space_key_space() {
         assert_eq!(
-            Sut::from_global_key_space(1337)
-                .unwrap()
-                .map_to_local_key_space()
-                .key_space(),
+            Sut::from_global_key_space(1337).unwrap().key_space(),
             KeySpace::Unsecurified { is_hardened: false }
         );
     }

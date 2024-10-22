@@ -25,7 +25,7 @@ pub enum Unsecurified {
 }
 
 impl Unsecurified {
-    pub const MAX_LOCAL: u32 = GLOBAL_OFFSET_SECURIFIED - 1;
+    pub const MAX_LOCAL: u32 = GLOBAL_OFFSET_HARDENED_SECURIFIED - 1;
 }
 
 impl AddViaGlobalKeySpace for Unsecurified {}
@@ -40,11 +40,17 @@ impl HasSampleValues for Unsecurified {
     }
 }
 
-impl IsMappableToLocalKeySpace for Unsecurified {
-    fn map_to_local_key_space(&self) -> KeySpaceWithLocalIndex {
+impl IsInLocalKeySpace for Unsecurified {
+    fn key_space(&self) -> KeySpace {
         match self {
-            Self::Unhardened(u) => u.map_to_local_key_space(),
-            Self::Hardened(h) => h.map_to_local_key_space(),
+            Self::Unhardened(u) => u.key_space(),
+            Self::Hardened(h) => h.key_space(),
+        }
+    }
+    fn index_in_local_key_space(&self) -> U31 {
+        match self {
+            Self::Unhardened(u) => u.index_in_local_key_space(),
+            Self::Hardened(h) => h.index_in_local_key_space(),
         }
     }
 }
@@ -73,16 +79,11 @@ impl From<UnsecurifiedHardened> for Unsecurified {
 }
 
 impl Unsecurified {
-    pub fn from_local_key_space(
-        u31: impl TryInto<U31, Error = CommonError>,
-        is_hardened: bool,
-    ) -> Result<Self> {
+    pub fn from_local_key_space(local: u32, is_hardened: bool) -> Result<Self> {
         if is_hardened {
-            TryInto::<U31>::try_into(u31)
-                .and_then(UnsecurifiedHardened::from_local_key_space)
-                .map(Self::Hardened)
+            UnsecurifiedHardened::from_local_key_space(local).map(Self::Hardened)
         } else {
-            Unhardened::from_local_key_space(u31).map(Self::Unhardened)
+            Unhardened::from_local_key_space(local).map(Self::Unhardened)
         }
     }
 }
@@ -168,19 +169,45 @@ mod tests {
     fn from_global_key_space_max() {
         assert_eq!(
             Sut::from_global_key_space(Sut::MAX_LOCAL).unwrap(),
-            Sut::from_global_key_space(GLOBAL_OFFSET_SECURIFIED - 1).unwrap()
+            Sut::from_global_key_space(GLOBAL_OFFSET_HARDENED_SECURIFIED - 1).unwrap()
         );
     }
 
     #[test]
-    fn from_global_key_space_max_into_local() {
+    fn from_global_key_space_of_hardened() {
         assert_eq!(
             Sut::from_global_key_space(Sut::MAX_LOCAL)
                 .unwrap()
-                .map_to_local_key_space(),
-            KeySpaceWithLocalIndex::Unsecurified(UnsecurifiedKeySpaceWithLocalIndex::Hardened(
-                U30::try_from(U30::MAX).unwrap()
-            ))
+                .key_space(),
+            KeySpace::Unsecurified { is_hardened: true }
+        );
+    }
+
+    #[test]
+    fn from_global_index_of_hardened() {
+        assert_eq!(
+            Sut::from_global_key_space(Sut::MAX_LOCAL)
+                .unwrap()
+                .index_in_local_key_space(),
+            U31::try_from(U30::MAX).unwrap()
+        );
+    }
+
+    #[test]
+    fn from_global_key_space_of_non_hardened() {
+        assert_eq!(
+            Sut::from_global_key_space(5).unwrap().key_space(),
+            KeySpace::Unsecurified { is_hardened: false }
+        );
+    }
+
+    #[test]
+    fn from_global_index_of_non_hardened() {
+        assert_eq!(
+            Sut::from_global_key_space(5)
+                .unwrap()
+                .index_in_local_key_space(),
+            U31::from(5)
         );
     }
 
@@ -303,7 +330,7 @@ mod tests {
 
     #[test]
     fn from_global_invalid() {
-        assert!(Sut::from_global_key_space(GLOBAL_OFFSET_SECURIFIED).is_err());
+        assert!(Sut::from_global_key_space(GLOBAL_OFFSET_HARDENED_SECURIFIED).is_err());
     }
 
     #[test]
@@ -319,10 +346,7 @@ mod tests {
     #[test]
     fn unhardened_map_to_local_key_space_key_space() {
         assert_eq!(
-            Sut::from_global_key_space(1337)
-                .unwrap()
-                .map_to_local_key_space()
-                .key_space(),
+            Sut::from_global_key_space(1337).unwrap().key_space(),
             KeySpace::Unsecurified { is_hardened: false }
         );
     }
@@ -332,7 +356,6 @@ mod tests {
         assert_eq!(
             Sut::from_global_key_space(1337 + GLOBAL_OFFSET_HARDENED)
                 .unwrap()
-                .map_to_local_key_space()
                 .key_space(),
             KeySpace::Unsecurified { is_hardened: true }
         );

@@ -7,7 +7,7 @@ pub trait ToBIP32Str: Sized {
 
 impl<T> ToBIP32Str for T
 where
-    T: IsPathComponentStringConvertible + IsMappableToLocalKeySpace,
+    T: IsPathComponentStringConvertible + IsInLocalKeySpace,
 {
     fn to_bip32_string(&self) -> String {
         format!(

@@ -1,5 +1,58 @@
 use crate::prelude::*;
 
+/// Represents a hardened index in a BIP32 path, furthermore it can be known to be "Securified" or "Unsecurified", it is is "Securified" we
+/// will not only add the `GLOBAL_OFFSET_HARDENED` (0x80000000) to the index, but also the `RELATIVELY_LOCAL_OFFSET_SECURIFIED` (0x40000000) to the index.
+///
+/// The internal representation hold a non-hardened, so called "local" offset, and at the time of usage, when forming a BIP32 path, we "map" it to a global offset by adding the appropriate global offset.
+///
+/// The internal representation keeps track of the key space, and the index in the local key space.
+///
+/// We can instantiate a `Hardened` from a global key space index, or from a local key space index, and we can convert it back to a global key space index.
+///
+/// # Examples
+/// ```
+/// extern crate hdpath;
+/// use hdpath::prelude::*;
+/// // From Global KeySpace
+/// assert_eq!(
+///   Hardened::from_global_key_space(42 + GLOBAL_OFFSET_HARDENED).unwrap(),
+///   Hardened::Unsecurified(UnsecurifiedHardened::from_local_key_space(42).unwrap())
+/// );
+///
+/// assert_eq!(
+///   Hardened::from_global_key_space(5 + GLOBAL_OFFSET_HARDENED_SECURIFIED).unwrap(),
+///   Hardened::Securified(SecurifiedU30::from_local_key_space(5).unwrap())
+/// );
+///
+/// assert!(
+///   matches!(
+///     Hardened::from_global_key_space(3),
+///     Err(CommonError::IndexNotHardened { bad_index: 3 })
+///  )
+/// );
+///
+/// // From Local KeySpace
+/// assert_eq!(
+///   Hardened::from_local_key_space(25, IsSecurified(false)).unwrap(),
+///   Hardened::Unsecurified(UnsecurifiedHardened::from_local_key_space(25).unwrap())
+/// );
+///
+/// assert_eq!(
+///   Hardened::from_local_key_space(9, IsSecurified(true)).unwrap(),
+///   Hardened::Securified(SecurifiedU30::from_local_key_space(9).unwrap())
+/// );
+///
+/// // Map to global KeySpace
+/// assert_eq!(
+///   Hardened::from_local_key_space(9, IsSecurified(true)).unwrap().map_to_global_key_space(),
+///   9 + GLOBAL_OFFSET_HARDENED_SECURIFIED
+/// );
+///
+/// assert_eq!(
+///   Hardened::from_local_key_space(4, IsSecurified(false)).unwrap().map_to_global_key_space(),
+///   4 + GLOBAL_OFFSET_HARDENED
+/// );
+/// ```
 #[derive(
     Clone,
     Copy,
@@ -49,11 +102,17 @@ impl IsMappableToGlobalKeySpace for Hardened {
     }
 }
 
-impl IsMappableToLocalKeySpace for Hardened {
-    fn map_to_local_key_space(&self) -> KeySpaceWithLocalIndex {
+impl IsInLocalKeySpace for Hardened {
+    fn key_space(&self) -> KeySpace {
         match self {
-            Self::Unsecurified(u) => u.map_to_local_key_space(),
-            Self::Securified(s) => s.map_to_local_key_space(),
+            Self::Unsecurified(u) => u.key_space(),
+            Self::Securified(s) => s.key_space(),
+        }
+    }
+    fn index_in_local_key_space(&self) -> U31 {
+        match self {
+            Self::Unsecurified(u) => u.index_in_local_key_space(),
+            Self::Securified(s) => s.index_in_local_key_space(),
         }
     }
 }
@@ -63,6 +122,7 @@ impl FromGlobalKeySpace for Hardened {
         SecurifiedU30::from_global_key_space(value)
             .map(Self::Securified)
             .or(UnsecurifiedHardened::from_global_key_space(value).map(Self::Unsecurified))
+            .map_err(|_| CommonError::IndexNotHardened { bad_index: value })
     }
 }
 
@@ -75,12 +135,14 @@ impl FromBIP32Str for Hardened {
     }
 }
 
+pub struct IsSecurified(pub bool);
+
 impl Hardened {
     pub fn from_local_key_space_unsecurified(value: u32) -> Result<Self> {
-        Self::from_local_key_space(value, false)
+        Self::from_local_key_space(value, IsSecurified(false))
     }
-    pub fn from_local_key_space(value: u32, is_securified: bool) -> Result<Self> {
-        if is_securified {
+    pub fn from_local_key_space(value: u32, is_securified: IsSecurified) -> Result<Self> {
+        if is_securified.0 {
             SecurifiedU30::from_local_key_space(value).map(Self::Securified)
         } else {
             UnsecurifiedHardened::from_local_key_space(value).map(Self::Unsecurified)
@@ -149,12 +211,12 @@ mod tests {
     #[test]
     fn unsecurified_from_local() {
         assert_eq!(
-            Sut::from_local_key_space(1, false).unwrap(),
+            Sut::from_local_key_space(1, IsSecurified(false)).unwrap(),
             Sut::from_global_key_space(GLOBAL_OFFSET_HARDENED + 1).unwrap()
         );
 
         assert_eq!(
-            Sut::from_local_key_space(3, false).unwrap(),
+            Sut::from_local_key_space(3, IsSecurified(false)).unwrap(),
             Sut::from_global_key_space(GLOBAL_OFFSET_HARDENED + 3).unwrap()
         );
     }
@@ -162,13 +224,13 @@ mod tests {
     #[test]
     fn securified_from_local() {
         assert_eq!(
-            Sut::from_local_key_space(0, true).unwrap(),
-            Sut::from_global_key_space(GLOBAL_OFFSET_SECURIFIED).unwrap()
+            Sut::from_local_key_space(0, IsSecurified(true)).unwrap(),
+            Sut::from_global_key_space(GLOBAL_OFFSET_HARDENED_SECURIFIED).unwrap()
         );
 
         assert_eq!(
-            Sut::from_local_key_space(3, true).unwrap(),
-            Sut::from_global_key_space(3 + GLOBAL_OFFSET_SECURIFIED).unwrap()
+            Sut::from_local_key_space(3, IsSecurified(true)).unwrap(),
+            Sut::from_global_key_space(3 + GLOBAL_OFFSET_HARDENED_SECURIFIED).unwrap()
         );
     }
 
@@ -176,7 +238,7 @@ mod tests {
     fn from_str_valid_0_unsecurified() {
         assert_eq!(
             "0H".parse::<Sut>().unwrap(),
-            Sut::from_local_key_space(0, false).unwrap()
+            Sut::from_local_key_space(0, IsSecurified(false)).unwrap()
         );
     }
 
@@ -184,7 +246,7 @@ mod tests {
     fn from_str_valid_0_securified() {
         assert_eq!(
             "0S".parse::<Sut>().unwrap(),
-            Sut::from_local_key_space(0, true).unwrap()
+            Sut::from_local_key_space(0, IsSecurified(true)).unwrap()
         );
     }
 
@@ -192,14 +254,14 @@ mod tests {
     fn from_str_valid_1_securified_canonical() {
         assert_eq!(
             "1S".parse::<Sut>().unwrap(),
-            Sut::from_global_key_space(1 + GLOBAL_OFFSET_SECURIFIED).unwrap()
+            Sut::from_global_key_space(1 + GLOBAL_OFFSET_HARDENED_SECURIFIED).unwrap()
         );
     }
     #[test]
     fn from_str_valid_1_securified_non_canonical() {
         assert_eq!(
             "1^".parse::<Sut>().unwrap(),
-            Sut::from_global_key_space(1 + GLOBAL_OFFSET_SECURIFIED).unwrap()
+            Sut::from_global_key_space(1 + GLOBAL_OFFSET_HARDENED_SECURIFIED).unwrap()
         );
     }
 
@@ -231,7 +293,7 @@ mod tests {
     fn from_str_valid_max() {
         assert_eq!(
             "1073741823S".parse::<Sut>().unwrap(),
-            Sut::from_local_key_space(U30_MAX, true).unwrap()
+            Sut::from_local_key_space(U30_MAX, IsSecurified(true)).unwrap()
         );
     }
 
@@ -261,7 +323,7 @@ mod tests {
         assert_eq!(
             format!(
                 "{}",
-                Sut::from_global_key_space(1 + GLOBAL_OFFSET_SECURIFIED).unwrap()
+                Sut::from_global_key_space(1 + GLOBAL_OFFSET_HARDENED_SECURIFIED).unwrap()
             ),
             "1S"
         );
@@ -271,7 +333,7 @@ mod tests {
         assert_eq!(
             format!(
                 "{}",
-                Sut::from_global_key_space(2 + GLOBAL_OFFSET_SECURIFIED).unwrap()
+                Sut::from_global_key_space(2 + GLOBAL_OFFSET_HARDENED_SECURIFIED).unwrap()
             ),
             "2S"
         );
@@ -280,7 +342,10 @@ mod tests {
     #[test]
     fn debug_unsec_0() {
         assert_eq!(
-            format!("{:?}", Sut::from_local_key_space(0, false).unwrap()),
+            format!(
+                "{:?}",
+                Sut::from_local_key_space(0, IsSecurified(false)).unwrap()
+            ),
             "0'"
         );
     }
@@ -288,7 +353,10 @@ mod tests {
     #[test]
     fn debug_sec_0() {
         assert_eq!(
-            format!("{:?}", Sut::from_local_key_space(0, true).unwrap()),
+            format!(
+                "{:?}",
+                Sut::from_local_key_space(0, IsSecurified(true)).unwrap()
+            ),
             "0^"
         );
     }
@@ -296,7 +364,10 @@ mod tests {
     #[test]
     fn display_unsec_0() {
         assert_eq!(
-            format!("{}", Sut::from_local_key_space(0, false).unwrap()),
+            format!(
+                "{}",
+                Sut::from_local_key_space(0, IsSecurified(false)).unwrap()
+            ),
             "0H"
         );
     }
@@ -304,7 +375,10 @@ mod tests {
     #[test]
     fn display_sec_0() {
         assert_eq!(
-            format!("{}", Sut::from_local_key_space(0, true).unwrap()),
+            format!(
+                "{}",
+                Sut::from_local_key_space(0, IsSecurified(true)).unwrap()
+            ),
             "0S"
         );
     }
@@ -320,7 +394,7 @@ mod tests {
     #[test]
     fn from_global_valid_securified() {
         assert_eq!(
-            Sut::from_global_key_space(1337 + GLOBAL_OFFSET_SECURIFIED).unwrap(),
+            Sut::from_global_key_space(1337 + GLOBAL_OFFSET_HARDENED_SECURIFIED).unwrap(),
             Sut::Securified(SecurifiedU30::from_local_key_space(1337).unwrap())
         );
     }
@@ -361,9 +435,8 @@ mod tests {
     #[test]
     fn index_in_local_key_space_securified_key_space() {
         assert_eq!(
-            Sut::from_global_key_space(1337 + GLOBAL_OFFSET_SECURIFIED)
+            Sut::from_global_key_space(1337 + GLOBAL_OFFSET_HARDENED_SECURIFIED)
                 .unwrap()
-                .map_to_local_key_space()
                 .key_space(),
             KeySpace::Securified
         );
@@ -380,7 +453,7 @@ mod tests {
     #[test]
     fn index_in_local_key_space_securified() {
         assert_eq!(
-            Sut::from_global_key_space(1337 + GLOBAL_OFFSET_SECURIFIED)
+            Sut::from_global_key_space(1337 + GLOBAL_OFFSET_HARDENED_SECURIFIED)
                 .unwrap()
                 .index_in_local_key_space(),
             U31::from(1337)
@@ -400,16 +473,16 @@ mod tests {
     #[test]
     fn into_global_securified() {
         assert_eq!(
-            Sut::from_global_key_space(1337 + GLOBAL_OFFSET_SECURIFIED)
+            Sut::from_global_key_space(1337 + GLOBAL_OFFSET_HARDENED_SECURIFIED)
                 .unwrap()
                 .map_to_global_key_space(),
-            1337 + GLOBAL_OFFSET_SECURIFIED
+            1337 + GLOBAL_OFFSET_HARDENED_SECURIFIED
         );
     }
 
     #[test]
     fn json_roundtrip_securified() {
-        let sut = Sut::from_local_key_space(1337, true).unwrap();
+        let sut = Sut::from_local_key_space(1337, IsSecurified(true)).unwrap();
 
         assert_json_value_eq_after_roundtrip(&sut, json!("1337S"));
         assert_json_roundtrip(&sut);
@@ -418,7 +491,7 @@ mod tests {
 
     #[test]
     fn json_roundtrip_unsecurified() {
-        let sut = Sut::from_local_key_space(1337, false).unwrap();
+        let sut = Sut::from_local_key_space(1337, IsSecurified(false)).unwrap();
 
         assert_json_value_eq_after_roundtrip(&sut, json!("1337H"));
         assert_json_roundtrip(&sut);
@@ -449,7 +522,7 @@ mod tests {
     #[test]
     fn add_max_to_zero_is_err_since_it_changes_key_space() {
         let sut = Sut::from_global_key_space(GLOBAL_OFFSET_HARDENED).unwrap();
-        assert_eq!(sut.map_to_local_key_space().index(), U31::from(0));
+        assert_eq!(sut.index_in_local_key_space(), U31::from(0));
 
         assert!(matches!(
             sut.checked_add_n_to_global(Sut::MAX_LOCAL),

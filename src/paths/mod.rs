@@ -18,7 +18,7 @@ use crate::prelude::*;
 /// Unsafe, does not validate the value to be small enough.
 ///
 /// Only use this for tests and constants.
-const unsafe fn hard(value: u32) -> HDPathComponent {
+const unsafe fn hard(value: u16) -> HDPathComponent {
     unsafe {
         HDPathComponent::Unsecurified(Unsecurified::Hardened(UnsecurifiedHardened::new(U30::new(
             value,
@@ -30,7 +30,7 @@ const unsafe fn hard(value: u32) -> HDPathComponent {
 /// Unsafe, does not validate the value to be small enough.
 ///
 /// Only use this for tests and constants.
-const unsafe fn unhard(value: u32) -> HDPathComponent {
+const unsafe fn unhard(value: u16) -> HDPathComponent {
     unsafe {
         HDPathComponent::Unsecurified(Unsecurified::Unhardened(Unhardened::new(U31::new(value))))
     }

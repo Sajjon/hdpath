@@ -6,17 +6,19 @@ pub struct U30(u32);
 impl U30 {
     pub const MAX: u32 = U30_MAX;
 
-    /// # Safety
-    /// Unsafe, does not validate the value to be small enough.
-    ///
-    /// Only use this for tests and constants.
-    pub(crate) const unsafe fn new(value: u32) -> Self {
-        Self(value)
+    pub(crate) const fn new(value: u16) -> Self {
+        Self(value as u32)
     }
 }
 
 impl AddViaDeref for U30 {}
 impl AddSelfViaDeref for U30 {}
+
+impl From<u16> for U30 {
+    fn from(value: u16) -> Self {
+        Self::new(value)
+    }
+}
 
 impl From<U30> for U31 {
     fn from(value: U30) -> Self {
@@ -45,7 +47,7 @@ impl TryFrom<u32> for U30 {
 
 impl HasSampleValues for U30 {
     fn sample() -> Self {
-        Self::try_from(30u32).unwrap()
+        Self::new(30)
     }
     fn sample_other() -> Self {
         Self::try_from(Self::MAX).unwrap()
@@ -103,7 +105,7 @@ mod tests {
 
     #[test]
     fn add_zero() {
-        let sut = Sut::try_from(42).unwrap();
+        let sut = Sut::new(42);
         assert_eq!(sut.checked_add(&Sut::try_from(0u32).unwrap()).unwrap(), sut);
     }
 
@@ -115,7 +117,7 @@ mod tests {
 
     #[test]
     fn add_max_to_zero_is_ok() {
-        let sut = Sut::try_from(0).unwrap();
+        let sut = Sut::new(0);
         assert_eq!(
             sut.checked_add_n(Sut::MAX).unwrap(),
             Sut::try_from(Sut::MAX).unwrap()
@@ -124,8 +126,8 @@ mod tests {
 
     #[test]
     fn add_one() {
-        let sut = Sut::try_from(42).unwrap();
-        assert_eq!(sut.checked_add_one().unwrap(), Sut::try_from(43).unwrap());
+        let sut = Sut::new(42);
+        assert_eq!(sut.checked_add_one().unwrap(), Sut::new(43));
     }
 
     #[test]
@@ -148,7 +150,7 @@ mod tests {
 
     #[test]
     fn addition_overflow_add_max() {
-        let sut = Sut::try_from(1).unwrap();
+        let sut = Sut::new(1);
         assert!(matches!(
             sut.checked_add(&Sut::try_from(Sut::MAX).unwrap()),
             Err(CommonError::Overflow)

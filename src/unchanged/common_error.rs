@@ -2,6 +2,9 @@ use super::CAP26EntityKind;
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, thiserror::Error)]
 pub enum CommonError {
+    #[error("IndexNotHardened {bad_index:?}")]
+    IndexNotHardened { bad_index: u32 },
+
     #[error("overflow")]
     Overflow,
 
