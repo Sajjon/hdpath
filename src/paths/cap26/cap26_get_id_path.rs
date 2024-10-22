@@ -1,18 +1,6 @@
 use crate::prelude::*;
 
-#[derive(
-    Clone,
-    Default,
-    PartialEq,
-    Eq,
-    Hash,
-    PartialOrd,
-    Ord,
-    MoreDebug,
-    SerializeDisplay,
-    DeserializeFromStr,
-    derive_more::Display,
-)]
+#[derive(Clone, Default, MoreDebug, derive_more::Display)]
 #[display("{}", self.to_bip32_string())]
 #[debug("{}", self.to_bip32_string_debug())]
 pub struct CAP26GetIDPath;
@@ -31,17 +19,6 @@ impl CAP26GetIDPath {
         HDPath::from(self.clone())
     }
 }
-impl TryFrom<HDPath> for CAP26GetIDPath {
-    type Error = CommonError;
-    fn try_from(path: HDPath) -> Result<Self> {
-        let _self = Self;
-        if path == _self.to_hd_path() {
-            Ok(_self)
-        } else {
-            Err(CommonError::Overflow)
-        }
-    }
-}
 
 impl ToBIP32Str for CAP26GetIDPath {
     fn to_bip32_string(&self) -> String {
@@ -49,18 +26,6 @@ impl ToBIP32Str for CAP26GetIDPath {
     }
     fn to_bip32_string_debug(&self) -> String {
         self.to_hd_path().to_bip32_string_debug()
-    }
-}
-impl FromBIP32Str for CAP26GetIDPath {
-    fn from_bip32_string(s: impl AsRef<str>) -> Result<Self> {
-        HDPath::from_bip32_string(s).and_then(Self::try_from)
-    }
-}
-impl FromStr for CAP26GetIDPath {
-    type Err = CommonError;
-
-    fn from_str(s: &str) -> Result<Self> {
-        Self::from_bip32_string(s)
     }
 }
 
@@ -75,7 +40,6 @@ pub fn blake2b_256_hash<T: AsRef<[u8]>>(data: T) -> [u8; 32] {
 
 #[cfg(test)]
 mod tests {
-    use serde_json::json;
 
     use super::*;
 
@@ -89,64 +53,6 @@ mod tests {
     #[test]
     fn debug() {
         assert_eq!(format!("{:?}", Sut::default()), "m/44'/1022'/365'");
-    }
-
-    #[test]
-    fn from_str_canonical() {
-        assert_eq!(Sut::from_str("m/44H/1022H/365H").unwrap(), Sut::default());
-    }
-
-    #[test]
-    fn from_str_non_canonical() {
-        assert_eq!(Sut::from_str("m/44'/1022'/365'").unwrap(), Sut::default());
-    }
-
-    #[test]
-    fn equality_from_diff_string() {
-        assert_eq!(
-            Sut::from_str("m/44H/1022H/365H").unwrap(),
-            Sut::from_str("m/44'/1022'/365'").unwrap()
-        );
-    }
-
-    #[test]
-    fn from_str_canonical_uppercase() {
-        assert_eq!(Sut::from_str("M/44H/1022H/365H").unwrap(), Sut::default());
-    }
-
-    #[test]
-    fn from_str_no_m() {
-        assert_eq!(Sut::from_str("44H/1022H/365H").unwrap(), Sut::default());
-    }
-
-    #[test]
-    fn from_str_leading_slash() {
-        assert_eq!(Sut::from_str("/44H/1022H/365H").unwrap(), Sut::default());
-    }
-
-    #[test]
-    fn from_str_trailing_slash() {
-        assert_eq!(Sut::from_str("m/44H/1022H/365H/").unwrap(), Sut::default());
-    }
-
-    #[test]
-    fn json_roundtrip() {
-        let sut = Sut::default();
-
-        assert_json_value_eq_after_roundtrip(&sut, json!("m/44H/1022H/365H"));
-        assert_json_roundtrip(&sut);
-    }
-
-    #[test]
-    fn json_fails_for_invalid() {
-        assert_json_value_fails::<Sut>(json!(""));
-        assert_json_value_fails::<Sut>(json!("foobar"));
-        assert_json_value_fails::<Sut>(json!("^"));
-        assert_json_value_fails::<Sut>(json!("S"));
-        assert_json_value_fails::<Sut>(json!("2"));
-        assert_json_value_fails::<Sut>(json!("2'"));
-        assert_json_value_fails::<Sut>(json!("2X"));
-        assert_json_value_fails::<Sut>(json!("   "));
     }
 
     #[test]
