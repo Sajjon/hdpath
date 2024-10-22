@@ -57,14 +57,14 @@ impl HasSampleValues for CAP26AccountPath {
         Self::new(
             NetworkID::Mainnet,
             CAP26KeyKind::TransactionSigning,
-            Hardened::from_local_key_space_unsecurified(0).unwrap(),
+            Hardened::from_local_key_space_unsecurified(0u32).unwrap(),
         )
     }
     fn sample_other() -> Self {
         Self::new(
             NetworkID::Mainnet,
             CAP26KeyKind::TransactionSigning,
-            Hardened::from_local_key_space_unsecurified(1).unwrap(),
+            Hardened::from_local_key_space_unsecurified(1u32).unwrap(),
         )
     }
 }

@@ -9,6 +9,11 @@ impl U30 {
     pub(crate) const fn new(value: u16) -> Self {
         Self(value as u32)
     }
+
+    pub const ZERO: Self = Self(0);
+    pub const ONE: Self = Self(1);
+    pub const TWO: Self = Self(2);
+    pub const THREE: Self = Self(3);
 }
 
 impl AddViaDeref for U30 {}
@@ -106,18 +111,18 @@ mod tests {
     #[test]
     fn add_zero() {
         let sut = Sut::new(42);
-        assert_eq!(sut.checked_add(&Sut::try_from(0u32).unwrap()).unwrap(), sut);
+        assert_eq!(sut.checked_add(&Sut::ZERO).unwrap(), sut);
     }
 
     #[test]
     fn add_zero_to_max_is_ok() {
         let sut = Sut::try_from(Sut::MAX).unwrap();
-        assert_eq!(sut.checked_add(&Sut::try_from(0u32).unwrap()).unwrap(), sut,);
+        assert_eq!(sut.checked_add(&Sut::ZERO).unwrap(), sut,);
     }
 
     #[test]
     fn add_max_to_zero_is_ok() {
-        let sut = Sut::new(0);
+        let sut = Sut::ZERO;
         assert_eq!(
             sut.checked_add_n(Sut::MAX).unwrap(),
             Sut::try_from(Sut::MAX).unwrap()
@@ -134,23 +139,28 @@ mod tests {
     fn add_one_to_max_minus_1_is_max() {
         let sut = Sut::try_from(Sut::MAX - 1).unwrap();
         assert_eq!(
-            sut.checked_add(&Sut::try_from(1u32).unwrap()).unwrap(),
+            sut.checked_add(&Sut::ONE).unwrap(),
             Sut::try_from(Sut::MAX).unwrap()
         );
+    }
+
+    #[test]
+    fn add_one_to_two() {
+        assert_eq!(Sut::TWO.checked_add(&Sut::ONE).unwrap(), Sut::THREE);
     }
 
     #[test]
     fn addition_overflow_base_max() {
         let sut = Sut::try_from(Sut::MAX).unwrap();
         assert!(matches!(
-            sut.checked_add(&Sut::try_from(1u32).unwrap()),
+            sut.checked_add(&Sut::ONE),
             Err(CommonError::Overflow)
         ));
     }
 
     #[test]
     fn addition_overflow_add_max() {
-        let sut = Sut::new(1);
+        let sut = Sut::ONE;
         assert!(matches!(
             sut.checked_add(&Sut::try_from(Sut::MAX).unwrap()),
             Err(CommonError::Overflow)

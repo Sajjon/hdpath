@@ -20,6 +20,27 @@ use crate::prelude::*;
 ///     .index_in_local_key_space(),
 ///     U31::new(42)
 /// );
+///
+/// assert!(
+///   matches!(
+///     SecurifiedU30::from_global_key_space(1234),
+///     Err(CommonError::IndexInGlobalKeySpaceIsLowerThanOffset)
+///  )
+/// );
+///
+/// // From Local KeySpace
+/// assert_eq!(
+///     SecurifiedU30::from_local_key_space(55u32).unwrap().map_to_global_key_space(),
+///     55 + GLOBAL_OFFSET_HARDENED_SECURIFIED
+/// );
+///
+/// // To Global KeySpace
+/// assert_eq!(
+///   SecurifiedU30::from_global_key_space(237 + GLOBAL_OFFSET_HARDENED_SECURIFIED)
+///     .unwrap()
+///     .map_to_global_key_space(),
+///     237 + GLOBAL_OFFSET_HARDENED_SECURIFIED
+/// );
 #[derive(
     Clone,
     Copy,
@@ -41,6 +62,18 @@ pub struct SecurifiedU30(U30);
 
 impl SecurifiedU30 {
     pub const MAX_LOCAL: u32 = U30::MAX;
+
+    /// `Self::from_local_key_space(0).unwrap()`
+    pub const ZERO: Self = Self(U30::ZERO);
+
+    /// `Self::from_local_key_space(1).unwrap()`
+    pub const ONE: Self = Self(U30::ONE);
+
+    /// `Self::from_local_key_space(2).unwrap()`
+    pub const TWO: Self = Self(U30::TWO);
+
+    /// `Self::from_local_key_space(3.unwrap()`
+    pub const THREE: Self = Self(U30::THREE);
 }
 
 impl AddViaDeref for SecurifiedU30 {}
@@ -331,26 +364,18 @@ mod tests {
     #[test]
     fn add_zero() {
         let sut = Sut::from_local_key_space(42).unwrap();
-        assert_eq!(
-            sut.checked_add(&Sut::from_local_key_space(0u32).unwrap())
-                .unwrap(),
-            sut
-        );
+        assert_eq!(sut.checked_add(&Sut::ZERO).unwrap(), sut);
     }
 
     #[test]
     fn add_zero_to_max_is_ok() {
         let sut = Sut::from_local_key_space(Sut::MAX_LOCAL).unwrap();
-        assert_eq!(
-            sut.checked_add(&Sut::from_local_key_space(0u32).unwrap())
-                .unwrap(),
-            sut,
-        );
+        assert_eq!(sut.checked_add(&Sut::ZERO).unwrap(), sut,);
     }
 
     #[test]
     fn add_max_to_zero_is_ok() {
-        let sut = Sut::from_local_key_space(0).unwrap();
+        let sut = Sut::ZERO;
         assert_eq!(
             sut.checked_add_n(Sut::MAX_LOCAL).unwrap(),
             Sut::from_local_key_space(Sut::MAX_LOCAL).unwrap()
@@ -383,6 +408,11 @@ mod tests {
             sut.checked_add(&Sut::from_local_key_space(1u32).unwrap()),
             Err(CommonError::Overflow)
         ));
+    }
+
+    #[test]
+    fn add_one_to_two() {
+        assert_eq!(Sut::TWO.checked_add(&Sut::ONE).unwrap(), Sut::THREE);
     }
 
     #[test]

@@ -31,6 +31,18 @@ impl Unhardened {
 
 impl Unhardened {
     pub const MAX_LOCAL: u32 = U31::MAX;
+
+    /// `Self::from_local_key_space(0).unwrap()`
+    pub const ZERO: Self = Self(U31::ZERO);
+
+    /// `Self::from_local_key_space(1).unwrap()`
+    pub const ONE: Self = Self(U31::ONE);
+
+    /// `Self::from_local_key_space(2).unwrap()`
+    pub const TWO: Self = Self(U31::TWO);
+
+    /// `Self::from_local_key_space(3.unwrap()`
+    pub const THREE: Self = Self(U31::THREE);
 }
 
 impl AddViaDeref for Unhardened {}
@@ -144,18 +156,12 @@ mod tests {
 
     #[test]
     fn from_str_valid_0() {
-        assert_eq!(
-            "0".parse::<Sut>().unwrap(),
-            Sut::from_local_key_space(0u32).unwrap()
-        );
+        assert_eq!("0".parse::<Sut>().unwrap(), Sut::ZERO);
     }
 
     #[test]
     fn from_str_valid_1() {
-        assert_eq!(
-            "1".parse::<Sut>().unwrap(),
-            Sut::from_local_key_space(1u32).unwrap()
-        );
+        assert_eq!("1".parse::<Sut>().unwrap(), Sut::ONE);
     }
 
     #[test]
@@ -168,15 +174,12 @@ mod tests {
 
     #[test]
     fn display_0() {
-        assert_eq!(format!("{}", Sut::from_local_key_space(0u32).unwrap()), "0");
+        assert_eq!(format!("{}", Sut::ZERO), "0");
     }
 
     #[test]
     fn debug_0() {
-        assert_eq!(
-            format!("{:?}", Sut::from_local_key_space(0u32).unwrap()),
-            "0"
-        );
+        assert_eq!(format!("{:?}", Sut::ZERO), "0");
     }
 
     #[test]
@@ -288,7 +291,7 @@ mod tests {
 
     #[test]
     fn add_max_to_zero_is_ok() {
-        let sut = Sut::from_local_key_space(0u32).unwrap();
+        let sut = Sut::ZERO;
         assert_eq!(
             sut.checked_add_n(Sut::MAX_LOCAL).unwrap(),
             Sut::from_local_key_space(Sut::MAX_LOCAL).unwrap()
@@ -297,11 +300,16 @@ mod tests {
 
     #[test]
     fn add_one() {
-        let sut = Sut::from_local_key_space(42u32).unwrap();
+        let sut = Sut::from_local_key_space(42).unwrap();
         assert_eq!(
             sut.checked_add_one().unwrap(),
-            Sut::from_local_key_space(43u32).unwrap()
+            Sut::from_local_key_space(43).unwrap()
         );
+    }
+
+    #[test]
+    fn add_one_to_two() {
+        assert_eq!(Sut::TWO.checked_add(&Sut::ONE).unwrap(), Sut::THREE);
     }
 
     #[test]
@@ -317,14 +325,14 @@ mod tests {
     fn addition_overflow_base_max() {
         let sut = Sut::from_local_key_space(Sut::MAX_LOCAL).unwrap();
         assert!(matches!(
-            sut.checked_add(&Sut::from_local_key_space(1u32).unwrap()),
+            sut.checked_add(&Sut::ONE),
             Err(CommonError::Overflow)
         ));
     }
 
     #[test]
     fn addition_overflow_add_max() {
-        let sut = Sut::from_local_key_space(1u32).unwrap();
+        let sut = Sut::ONE;
         assert!(matches!(
             sut.checked_add(&Sut::from_local_key_space(Sut::MAX_LOCAL).unwrap()),
             Err(CommonError::Overflow)

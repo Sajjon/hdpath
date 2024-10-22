@@ -16,12 +16,12 @@ use crate::prelude::*;
 /// // From Global KeySpace
 /// assert_eq!(
 ///   Hardened::from_global_key_space(42 + GLOBAL_OFFSET_HARDENED).unwrap(),
-///   Hardened::Unsecurified(UnsecurifiedHardened::from_local_key_space(42).unwrap())
+///   Hardened::Unsecurified(UnsecurifiedHardened::from_local_key_space(42u32).unwrap())
 /// );
 ///
 /// assert_eq!(
 ///   Hardened::from_global_key_space(5 + GLOBAL_OFFSET_HARDENED_SECURIFIED).unwrap(),
-///   Hardened::Securified(SecurifiedU30::from_local_key_space(5).unwrap())
+///   Hardened::Securified(SecurifiedU30::from_local_key_space(5u32).unwrap())
 /// );
 ///
 /// assert!(
@@ -33,23 +33,29 @@ use crate::prelude::*;
 ///
 /// // From Local KeySpace
 /// assert_eq!(
-///   Hardened::from_local_key_space(25, IsSecurified(false)).unwrap(),
-///   Hardened::Unsecurified(UnsecurifiedHardened::from_local_key_space(25).unwrap())
+///   Hardened::from_local_key_space(25u32, IsSecurified(false)).unwrap(),
+///   Hardened::Unsecurified(UnsecurifiedHardened::from_local_key_space(25u32).unwrap())
+/// );
+///
+/// // Ok to pass an `U31`
+/// assert_eq!(
+///   Hardened::from_local_key_space(U31::new(77), IsSecurified(false)).unwrap(),
+///   Hardened::Unsecurified(UnsecurifiedHardened::from_local_key_space(U31::new(77)).unwrap())
 /// );
 ///
 /// assert_eq!(
-///   Hardened::from_local_key_space(9, IsSecurified(true)).unwrap(),
-///   Hardened::Securified(SecurifiedU30::from_local_key_space(9).unwrap())
+///   Hardened::from_local_key_space(9u32, IsSecurified(true)).unwrap(),
+///   Hardened::Securified(SecurifiedU30::from_local_key_space(9u32).unwrap())
 /// );
 ///
 /// // Map to global KeySpace
 /// assert_eq!(
-///   Hardened::from_local_key_space(9, IsSecurified(true)).unwrap().map_to_global_key_space(),
+///   Hardened::from_local_key_space(9u32, IsSecurified(true)).unwrap().map_to_global_key_space(),
 ///   9 + GLOBAL_OFFSET_HARDENED_SECURIFIED
 /// );
 ///
 /// assert_eq!(
-///   Hardened::from_local_key_space(4, IsSecurified(false)).unwrap().map_to_global_key_space(),
+///   Hardened::from_local_key_space(4u32, IsSecurified(false)).unwrap().map_to_global_key_space(),
 ///   4 + GLOBAL_OFFSET_HARDENED
 /// );
 /// ```
@@ -138,10 +144,13 @@ impl FromBIP32Str for Hardened {
 pub struct IsSecurified(pub bool);
 
 impl Hardened {
-    pub fn from_local_key_space_unsecurified(value: u32) -> Result<Self> {
+    pub fn from_local_key_space_unsecurified(value: impl TryInto<U31>) -> Result<Self> {
         Self::from_local_key_space(value, IsSecurified(false))
     }
-    pub fn from_local_key_space(value: u32, is_securified: IsSecurified) -> Result<Self> {
+    pub fn from_local_key_space(
+        value: impl TryInto<U31>,
+        is_securified: IsSecurified,
+    ) -> Result<Self> {
         if is_securified.0 {
             SecurifiedU30::from_local_key_space(value).map(Self::Securified)
         } else {
@@ -510,13 +519,13 @@ mod tests {
     #[test]
     fn add_zero() {
         let sut = Sut::from_global_key_space(42 + GLOBAL_OFFSET_HARDENED).unwrap();
-        assert_eq!(sut.checked_add_n_to_global(0u32).unwrap(), sut);
+        assert_eq!(sut.checked_add_n_to_global(0).unwrap(), sut);
     }
 
     #[test]
     fn add_zero_to_max_is_ok() {
         let sut = Sut::from_global_key_space(Sut::MAX_LOCAL + GLOBAL_OFFSET_HARDENED).unwrap();
-        assert_eq!(sut.checked_add_n_to_global(0u32).unwrap(), sut,);
+        assert_eq!(sut.checked_add_n_to_global(0).unwrap(), sut,);
     }
 
     #[test]

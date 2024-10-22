@@ -205,12 +205,12 @@ mod tests {
     #[test]
     fn securified_from_local() {
         assert_eq!(
-            Sut::from_local_key_space(0u32, KeySpace::Securified).unwrap(),
+            Sut::from_local_key_space(0, KeySpace::Securified).unwrap(),
             Sut::from_global_key_space(GLOBAL_OFFSET_HARDENED_SECURIFIED).unwrap()
         );
 
         assert_eq!(
-            Sut::from_local_key_space(3u32, KeySpace::Securified).unwrap(),
+            Sut::from_local_key_space(3, KeySpace::Securified).unwrap(),
             Sut::from_global_key_space(3 + GLOBAL_OFFSET_HARDENED_SECURIFIED).unwrap()
         );
     }
@@ -218,12 +218,12 @@ mod tests {
     #[test]
     fn unsecurified_unhardened_from_local() {
         assert_eq!(
-            Sut::from_local_key_space(0u32, KeySpace::Unsecurified { is_hardened: false }).unwrap(),
+            Sut::from_local_key_space(0, KeySpace::Unsecurified { is_hardened: false }).unwrap(),
             Sut::from_global_key_space(0).unwrap()
         );
 
         assert_eq!(
-            Sut::from_local_key_space(3u32, KeySpace::Unsecurified { is_hardened: false }).unwrap(),
+            Sut::from_local_key_space(3, KeySpace::Unsecurified { is_hardened: false }).unwrap(),
             Sut::from_global_key_space(3).unwrap()
         );
     }
@@ -231,12 +231,12 @@ mod tests {
     #[test]
     fn unsecurified_hardened_from_local() {
         assert_eq!(
-            Sut::from_local_key_space(0u32, KeySpace::Unsecurified { is_hardened: true }).unwrap(),
+            Sut::from_local_key_space(0, KeySpace::Unsecurified { is_hardened: true }).unwrap(),
             Sut::from_global_key_space(GLOBAL_OFFSET_HARDENED).unwrap()
         );
 
         assert_eq!(
-            Sut::from_local_key_space(3u32, KeySpace::Unsecurified { is_hardened: true }).unwrap(),
+            Sut::from_local_key_space(3, KeySpace::Unsecurified { is_hardened: true }).unwrap(),
             Sut::from_global_key_space(3 + GLOBAL_OFFSET_HARDENED).unwrap()
         );
     }
@@ -261,20 +261,20 @@ mod tests {
     #[test]
     fn from_local_key_space_securified() {
         assert_eq!(
-            Sut::from_local_key_space(42u32, KeySpace::Securified).unwrap(),
-            Sut::securified(U30::try_from(42u32).unwrap())
+            Sut::from_local_key_space(42, KeySpace::Securified).unwrap(),
+            Sut::securified(U30::new(42))
         )
     }
 
     #[test]
     fn securified_hardened_from_local() {
         assert_eq!(
-            Sut::from_local_key_space(0u32, KeySpace::Securified).unwrap(),
+            Sut::from_local_key_space(0, KeySpace::Securified).unwrap(),
             Sut::from_global_key_space(GLOBAL_OFFSET_HARDENED_SECURIFIED).unwrap()
         );
 
         assert_eq!(
-            Sut::from_local_key_space(3u32, KeySpace::Securified).unwrap(),
+            Sut::from_local_key_space(3, KeySpace::Securified).unwrap(),
             Sut::from_global_key_space(3 + GLOBAL_OFFSET_HARDENED_SECURIFIED).unwrap()
         );
     }
@@ -373,7 +373,7 @@ mod tests {
         assert_eq!(
             Sut::from_global_key_space(1337).unwrap(),
             Sut::Unsecurified(Unsecurified::Unhardened(
-                Unhardened::from_local_key_space(1337u32).unwrap()
+                Unhardened::from_local_key_space(1337).unwrap()
             ))
         );
 
@@ -449,19 +449,19 @@ mod tests {
     #[test]
     fn add_zero_unhardened() {
         let sut = Sut::from_global_key_space(42).unwrap();
-        assert_eq!(sut.checked_add_n_to_global(0u32).unwrap(), sut);
+        assert_eq!(sut.checked_add_n_to_global(0).unwrap(), sut);
     }
 
     #[test]
     fn add_zero_unsecurified_hardened() {
         let sut = Sut::from_global_key_space(42 + GLOBAL_OFFSET_HARDENED).unwrap();
-        assert_eq!(sut.checked_add_n_to_global(0u32).unwrap(), sut);
+        assert_eq!(sut.checked_add_n_to_global(0).unwrap(), sut);
     }
 
     #[test]
     fn add_zero_securified() {
         let sut = Sut::from_global_key_space(42 + GLOBAL_OFFSET_HARDENED_SECURIFIED).unwrap();
-        assert_eq!(sut.checked_add_n_to_global(0u32).unwrap(), sut);
+        assert_eq!(sut.checked_add_n_to_global(0).unwrap(), sut);
     }
 
     #[test]

@@ -22,6 +22,18 @@ pub struct UnsecurifiedHardened(U30);
 
 impl UnsecurifiedHardened {
     pub const MAX_LOCAL: u32 = U30::MAX;
+
+    /// `Self::from_local_key_space(0).unwrap()`
+    pub const ZERO: Self = Self(U30::ZERO);
+
+    /// `Self::from_local_key_space(1).unwrap()`
+    pub const ONE: Self = Self(U30::ONE);
+
+    /// `Self::from_local_key_space(2).unwrap()`
+    pub const TWO: Self = Self(U30::TWO);
+
+    /// `Self::from_local_key_space(3.unwrap()`
+    pub const THREE: Self = Self(U30::THREE);
 }
 
 impl AddViaDeref for UnsecurifiedHardened {}
@@ -337,7 +349,7 @@ mod tests {
 
     #[test]
     fn add_max_to_zero_is_ok() {
-        let sut = Sut::from_local_key_space(0).unwrap();
+        let sut = Sut::ZERO;
         assert_eq!(
             sut.checked_add_n(Sut::MAX_LOCAL).unwrap(),
             Sut::from_local_key_space(Sut::MAX_LOCAL).unwrap()
@@ -369,6 +381,11 @@ mod tests {
             sut.checked_add(&Sut::from_local_key_space(1u32).unwrap()),
             Err(CommonError::Overflow)
         ));
+    }
+
+    #[test]
+    fn add_one_to_two() {
+        assert_eq!(Sut::TWO.checked_add(&Sut::ONE).unwrap(), Sut::THREE);
     }
 
     #[test]
