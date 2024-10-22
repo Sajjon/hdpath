@@ -91,9 +91,9 @@ macro_rules! path_union {
 
 path_union!(
     DerivationPath,
-    Account, Cap26AccountPath
-    Identity, Cap26IdentityPath
-    Bip44Like, Bip44LikePath
+    Account, CAP26AccountPath
+    Identity, CAP26IdentityPath
+    BIP44Like, BIP44LikePath
 );
 
 #[cfg(test)]
@@ -105,7 +105,7 @@ mod tests {
     #[test]
     fn test_to_bip32_string_is_display_account() {
         let sut = Sut::Account {
-            value: Cap26AccountPath::sample(),
+            value: CAP26AccountPath::sample(),
         };
         assert_eq!(sut.to_bip32_string(), format!("{}", sut));
     }
@@ -113,7 +113,7 @@ mod tests {
     #[test]
     fn test_to_bip32_string_is_debug_account() {
         let sut = Sut::Account {
-            value: Cap26AccountPath::sample(),
+            value: CAP26AccountPath::sample(),
         };
         assert_eq!(sut.to_bip32_string_debug(), format!("{:?}", sut));
     }
@@ -121,7 +121,7 @@ mod tests {
     #[test]
     fn test_to_bip32_string_is_display_identity() {
         let sut = Sut::Identity {
-            value: Cap26IdentityPath::sample(),
+            value: CAP26IdentityPath::sample(),
         };
         assert_eq!(sut.to_bip32_string(), format!("{}", sut));
     }
@@ -129,62 +129,62 @@ mod tests {
     #[test]
     fn test_to_bip32_string_is_debug_identity() {
         let sut = Sut::Identity {
-            value: Cap26IdentityPath::sample(),
+            value: CAP26IdentityPath::sample(),
         };
         assert_eq!(sut.to_bip32_string_debug(), format!("{:?}", sut));
     }
 
     #[test]
     fn string_roundtrip_account_from_account() {
-        let value = Cap26AccountPath::sample();
+        let value = CAP26AccountPath::sample();
         let s = value.to_bip32_string();
         let path2 = Sut::from_bip32_string(&s).unwrap();
         assert_eq!(Sut::Account { value }, path2);
     }
 
     #[test]
-    fn string_roundtrip_account_from_cap26() {
+    fn string_roundtrip_account_from_CAP26() {
         let sut = Sut::Account {
-            value: Cap26AccountPath::sample(),
+            value: CAP26AccountPath::sample(),
         };
         let s = sut.to_bip32_string();
-        let value = Cap26AccountPath::from_bip32_string(&s).unwrap();
+        let value = CAP26AccountPath::from_bip32_string(&s).unwrap();
         assert_eq!(Sut::Account { value }, sut)
     }
 
     #[test]
     fn string_roundtrip_identity_from_identity() {
-        let value = Cap26IdentityPath::sample();
+        let value = CAP26IdentityPath::sample();
         let s = value.to_bip32_string();
         let path2 = Sut::from_bip32_string(&s).unwrap();
         assert_eq!(Sut::Identity { value }, path2);
     }
 
     #[test]
-    fn string_roundtrip_identity_from_cap26() {
+    fn string_roundtrip_identity_from_CAP26() {
         let sut = Sut::Identity {
-            value: Cap26IdentityPath::sample(),
+            value: CAP26IdentityPath::sample(),
         };
         let s = sut.to_bip32_string();
-        let value = Cap26IdentityPath::from_bip32_string(&s).unwrap();
+        let value = CAP26IdentityPath::from_bip32_string(&s).unwrap();
         assert_eq!(Sut::Identity { value }, sut)
     }
 
     #[test]
-    fn string_roundtrip_bip44_from_bip44() {
-        let value = Bip44LikePath::sample();
+    fn string_roundtrip_BIP44_from_BIP44() {
+        let value = BIP44LikePath::sample();
         let s = value.to_bip32_string();
         let path2 = Sut::from_bip32_string(&s).unwrap();
-        assert_eq!(Sut::Bip44Like { value }, path2);
+        assert_eq!(Sut::BIP44Like { value }, path2);
     }
 
     #[test]
-    fn string_roundtrip_getid_from_cap26() {
-        let sut = Sut::Bip44Like {
-            value: Bip44LikePath::sample(),
+    fn string_roundtrip_getid_from_CAP26() {
+        let sut = Sut::BIP44Like {
+            value: BIP44LikePath::sample(),
         };
         let s = sut.to_bip32_string();
-        let value = Bip44LikePath::from_bip32_string(&s).unwrap();
-        assert_eq!(Sut::Bip44Like { value }, sut)
+        let value = BIP44LikePath::from_bip32_string(&s).unwrap();
+        assert_eq!(Sut::BIP44Like { value }, sut)
     }
 }

@@ -13,9 +13,9 @@ use crate::prelude::*;
 )]
 pub enum AccountPath {
     // #[debug("{}", self.bip32_string())]
-    Cap26 { value: Cap26AccountPath },
+    CAP26 { value: CAP26AccountPath },
     // #[debug("{}", self.bip32_string())]
-    Bip44Like { value: Bip44LikePath },
+    BIP44Like { value: BIP44LikePath },
 }
 
 // impl ToBip32String for AnyAccountPath {

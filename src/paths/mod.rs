@@ -1,16 +1,16 @@
+mod BIP44_like_path;
+mod CAP26;
 mod account_path;
-mod bip44_like_path;
-mod cap26;
 mod derivation_path;
 mod hd_path;
 mod traits;
 
 pub use account_path::*;
-pub use bip44_like_path::*;
-pub use cap26::*;
 pub use derivation_path::*;
 pub use hd_path::*;
 pub use traits::*;
+pub use BIP44_like_path::*;
+pub use CAP26::*;
 
 use crate::prelude::*;
 
@@ -40,10 +40,10 @@ pub(super) const COIN_TYPE: HDPathComponent = unsafe { hard(1022) };
 pub(super) const BIP44_ACCOUNT: HDPathComponent = unsafe { hard(0) };
 pub(super) const BIP44_CHANGE: HDPathComponent = unsafe { unhard(0) };
 
-pub(super) fn cap26(
+pub(super) fn CAP26(
     network_id: NetworkID,
-    entity_kind: Cap26EntityKind,
-    key_kind: Cap26KeyKind,
+    entity_kind: CAP26EntityKind,
+    key_kind: CAP26KeyKind,
     index: Hardened,
 ) -> HDPath {
     let mut path: [HDPathComponent; 6] = [PURPOSE; 6];
@@ -55,7 +55,7 @@ pub(super) fn cap26(
     HDPath::new(Vec::from_iter(path))
 }
 
-pub(super) fn bip44(index: HDPathComponent) -> HDPath {
+pub(super) fn BIP44(index: HDPathComponent) -> HDPath {
     let mut path: [HDPathComponent; 5] = [PURPOSE; 5];
     path[1] = COIN_TYPE;
     path[2] = BIP44_ACCOUNT;

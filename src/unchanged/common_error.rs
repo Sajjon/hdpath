@@ -1,4 +1,4 @@
-use super::Cap26EntityKind;
+use super::CAP26EntityKind;
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, thiserror::Error)]
 pub enum CommonError {
@@ -36,7 +36,7 @@ pub enum CommonError {
     NonHardenedIndex,
 
     #[error("Non hardened component found")]
-    Cap26DictatesThatAllIndicesMustBeHardened,
+    CAP26DictatesThatAllIndicesMustBeHardened,
 
     #[error("NonU32Str")]
     NonU32Str,
@@ -50,16 +50,16 @@ pub enum CommonError {
     #[error("Index In Global Key Space Is Lower Than Offset")]
     IndexInGlobalKeySpaceIsLowerThanOffset,
 
-    #[error("InvalidBip44ExpectedAccountComponentToBeHardened")]
-    InvalidBip44ExpectedAccountComponentToBeHardened,
+    #[error("InvalidBIP44ExpectedAccountComponentToBeHardened")]
+    InvalidBIP44ExpectedAccountComponentToBeHardened,
 
-    #[error("InvalidBip44ExpectedChangeComponentToNotBeHardened")]
-    InvalidBip44ExpectedChangeComponentToNotBeHardened,
+    #[error("InvalidBIP44ExpectedChangeComponentToNotBeHardened")]
+    InvalidBIP44ExpectedChangeComponentToNotBeHardened,
 
     #[error("WrongEntityKind found: {found:?}, expected: {expected:?}")]
     WrongEntityKind {
-        expected: Cap26EntityKind,
-        found: Cap26EntityKind,
+        expected: CAP26EntityKind,
+        found: CAP26EntityKind,
     },
 }
 pub type Result<T, E = CommonError> = std::result::Result<T, E>;

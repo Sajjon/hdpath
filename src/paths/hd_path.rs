@@ -99,6 +99,6 @@ mod tests {
     #[test]
     fn account_path() {
         let hdpath = Sut::from_str("m/44H/1022H/1H/525H/1460H/0H").unwrap();
-        assert_eq!(hdpath, Cap26AccountPath::sample().to_hd_path());
+        assert_eq!(hdpath, CAP26AccountPath::sample().to_hd_path());
     }
 }

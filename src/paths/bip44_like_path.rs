@@ -14,16 +14,16 @@ use crate::prelude::*;
 )]
 #[display("{}", self.to_bip32_string())]
 #[debug("{}", self.to_bip32_string_debug())]
-pub struct Bip44LikePath {
+pub struct BIP44LikePath {
     index: HDPathComponent,
 }
-impl Bip44LikePath {
+impl BIP44LikePath {
     pub fn new(index: HDPathComponent) -> Self {
         Self { index }
     }
 }
 
-impl HasSampleValues for Bip44LikePath {
+impl HasSampleValues for BIP44LikePath {
     fn sample() -> Self {
         Self::new(HDPathComponent::Unsecurified(Unsecurified::Unhardened(
             Unhardened::from_local_key_space(0u32).unwrap(),
@@ -36,19 +36,19 @@ impl HasSampleValues for Bip44LikePath {
     }
 }
 
-impl Bip44LikePath {
+impl BIP44LikePath {
     pub fn to_hd_path(&self) -> HDPath {
-        bip44(self.index)
+        BIP44(self.index)
     }
 }
 
-impl From<Bip44LikePath> for HDPath {
-    fn from(path: Bip44LikePath) -> Self {
+impl From<BIP44LikePath> for HDPath {
+    fn from(path: BIP44LikePath) -> Self {
         path.to_hd_path()
     }
 }
 
-impl TryFrom<HDPath> for Bip44LikePath {
+impl TryFrom<HDPath> for BIP44LikePath {
     type Error = CommonError;
     fn try_from(path: HDPath) -> Result<Self> {
         let components = path.components();
@@ -62,14 +62,14 @@ impl TryFrom<HDPath> for Bip44LikePath {
         if components[1] != COIN_TYPE {
             return Err(CommonError::InvalidCoinType);
         }
-        let bip44_account = components[2];
-        if bip44_account.is_unhardened() {
-            return Err(CommonError::InvalidBip44ExpectedAccountComponentToBeHardened);
+        let BIP44_account = components[2];
+        if BIP44_account.is_unhardened() {
+            return Err(CommonError::InvalidBIP44ExpectedAccountComponentToBeHardened);
         }
-        let bip44_change = components[3];
+        let BIP44_change = components[3];
 
-        if bip44_change.is_hardened() {
-            return Err(CommonError::InvalidBip44ExpectedChangeComponentToNotBeHardened);
+        if BIP44_change.is_hardened() {
+            return Err(CommonError::InvalidBIP44ExpectedChangeComponentToNotBeHardened);
         }
 
         let index = components[4];
@@ -78,7 +78,7 @@ impl TryFrom<HDPath> for Bip44LikePath {
     }
 }
 
-impl ToBIP32Str for Bip44LikePath {
+impl ToBIP32Str for BIP44LikePath {
     fn to_bip32_string(&self) -> String {
         self.to_hd_path().to_bip32_string()
     }
@@ -86,12 +86,12 @@ impl ToBIP32Str for Bip44LikePath {
         self.to_hd_path().to_bip32_string_debug()
     }
 }
-impl FromBIP32Str for Bip44LikePath {
+impl FromBIP32Str for BIP44LikePath {
     fn from_bip32_string(s: impl AsRef<str>) -> Result<Self> {
         HDPath::from_bip32_string(s).and_then(Self::try_from)
     }
 }
-impl FromStr for Bip44LikePath {
+impl FromStr for BIP44LikePath {
     type Err = CommonError;
 
     fn from_str(s: &str) -> Result<Self> {
@@ -105,7 +105,7 @@ mod tests {
 
     use super::*;
 
-    type Sut = Bip44LikePath;
+    type Sut = BIP44LikePath;
 
     #[test]
     fn equality() {

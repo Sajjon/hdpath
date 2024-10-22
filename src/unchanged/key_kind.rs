@@ -19,7 +19,7 @@ use crate::prelude::*;
     derive_more::Display,
 )]
 #[repr(u32)]
-pub enum Cap26KeyKind {
+pub enum CAP26KeyKind {
     /// For a key to be used for signing transactions.
     /// The value is the ascii sum of `"TRANSACTION_SIGNING"`
     TransactionSigning = 1460,
@@ -33,7 +33,7 @@ pub enum Cap26KeyKind {
     MessageEncryption = 1391,
 }
 
-impl HasSampleValues for Cap26KeyKind {
+impl HasSampleValues for CAP26KeyKind {
     fn sample() -> Self {
         Self::TransactionSigning
     }
@@ -42,14 +42,14 @@ impl HasSampleValues for Cap26KeyKind {
     }
 }
 
-impl Cap26KeyKind {
+impl CAP26KeyKind {
     /// The raw representation of this key kind, an `u32`.
     pub fn discriminant(&self) -> u32 {
         *self as u32
     }
 }
 
-impl TryFrom<U31> for Cap26KeyKind {
+impl TryFrom<U31> for CAP26KeyKind {
     type Error = CommonError;
     fn try_from(value: U31) -> Result<Self> {
         let value = u32::from(value);

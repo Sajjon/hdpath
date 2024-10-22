@@ -14,28 +14,28 @@ use crate::prelude::*;
 )]
 #[display("{}", self.to_bip32_string())]
 #[debug("{}", self.to_bip32_string_debug())]
-pub struct Cap26AccountPath {
+pub struct CAP26AccountPath {
     network_id: NetworkID,
-    key_kind: Cap26KeyKind,
+    key_kind: CAP26KeyKind,
     index: Hardened,
 }
 
-impl IsNetworkAware for Cap26AccountPath {
+impl IsNetworkAware for CAP26AccountPath {
     fn network_id(&self) -> NetworkID {
         self.network_id
     }
 }
 
-impl IsSecurityStateAware for Cap26AccountPath {
+impl IsSecurityStateAware for CAP26AccountPath {
     fn is_securified(&self) -> bool {
         self.index.is_securified()
     }
 }
 
-impl NewEntityPath for Cap26AccountPath {
+impl NewEntityPath for CAP26AccountPath {
     fn new(
         network_id: impl Into<NetworkID>,
-        key_kind: impl Into<Cap26KeyKind>,
+        key_kind: impl Into<CAP26KeyKind>,
         index: impl Into<Hardened>,
     ) -> Self {
         Self {
@@ -46,38 +46,38 @@ impl NewEntityPath for Cap26AccountPath {
     }
 }
 
-impl TryFrom<HDPath> for Cap26AccountPath {
+impl TryFrom<HDPath> for CAP26AccountPath {
     type Error = CommonError;
     fn try_from(path: HDPath) -> Result<Self> {
-        UnvalidatedCap26Path::try_from(path).and_then(Self::try_from_unvalidated)
+        UnvalidatedCAP26Path::try_from(path).and_then(Self::try_from_unvalidated)
     }
 }
-impl HasSampleValues for Cap26AccountPath {
+impl HasSampleValues for CAP26AccountPath {
     fn sample() -> Self {
         Self::new(
             NetworkID::Mainnet,
-            Cap26KeyKind::TransactionSigning,
+            CAP26KeyKind::TransactionSigning,
             Hardened::from_local_key_space_unsecurified(0u32).unwrap(),
         )
     }
     fn sample_other() -> Self {
         Self::new(
             NetworkID::Mainnet,
-            Cap26KeyKind::TransactionSigning,
+            CAP26KeyKind::TransactionSigning,
             Hardened::from_local_key_space_unsecurified(1u32).unwrap(),
         )
     }
 }
 
-impl From<Cap26AccountPath> for HDPath {
-    fn from(account_path: Cap26AccountPath) -> Self {
+impl From<CAP26AccountPath> for HDPath {
+    fn from(account_path: CAP26AccountPath) -> Self {
         account_path.to_hd_path()
     }
 }
 
-impl Cap26AccountPath {
+impl CAP26AccountPath {
     pub fn to_hd_path(&self) -> HDPath {
-        cap26(
+        CAP26(
             self.network_id,
             Self::entity_kind(),
             self.key_kind,
@@ -86,13 +86,13 @@ impl Cap26AccountPath {
     }
 }
 
-impl HasEntityKind for Cap26AccountPath {
-    fn entity_kind() -> Cap26EntityKind {
-        Cap26EntityKind::Account
+impl HasEntityKind for CAP26AccountPath {
+    fn entity_kind() -> CAP26EntityKind {
+        CAP26EntityKind::Account
     }
 }
 
-impl ToBIP32Str for Cap26AccountPath {
+impl ToBIP32Str for CAP26AccountPath {
     fn to_bip32_string(&self) -> String {
         self.to_hd_path().to_bip32_string()
     }
@@ -101,12 +101,12 @@ impl ToBIP32Str for Cap26AccountPath {
     }
 }
 
-impl FromBIP32Str for Cap26AccountPath {
+impl FromBIP32Str for CAP26AccountPath {
     fn from_bip32_string(s: impl AsRef<str>) -> Result<Self> {
         HDPath::from_bip32_string(s).and_then(Self::try_from)
     }
 }
-impl FromStr for Cap26AccountPath {
+impl FromStr for CAP26AccountPath {
     type Err = CommonError;
 
     fn from_str(s: &str) -> Result<Self> {
@@ -120,7 +120,7 @@ mod tests {
 
     use super::*;
 
-    type Sut = Cap26AccountPath;
+    type Sut = CAP26AccountPath;
 
     #[test]
     fn equality() {
@@ -168,8 +168,8 @@ mod tests {
         assert!(matches!(
             Sut::from_str("m/44H/1022H/1H/618H/1460H/0H"),
             Err(CommonError::WrongEntityKind {
-                expected: Cap26EntityKind::Account,
-                found: Cap26EntityKind::Identity
+                expected: CAP26EntityKind::Account,
+                found: CAP26EntityKind::Identity
             })
         ))
     }
@@ -199,7 +199,7 @@ mod tests {
         assert_eq!(
             Sut::new(
                 NetworkID::Stokenet,
-                Cap26KeyKind::sample(),
+                CAP26KeyKind::sample(),
                 Hardened::sample()
             )
             .network_id(),
@@ -211,7 +211,7 @@ mod tests {
     fn is_security_aware_unsecurified() {
         assert!(!Sut::new(
             NetworkID::Stokenet,
-            Cap26KeyKind::sample(),
+            CAP26KeyKind::sample(),
             Hardened::sample()
         )
         .is_securified(),);
@@ -221,7 +221,7 @@ mod tests {
     fn is_security_aware_securified() {
         assert!(Sut::new(
             NetworkID::Stokenet,
-            Cap26KeyKind::sample(),
+            CAP26KeyKind::sample(),
             Hardened::sample_other()
         )
         .is_securified());
@@ -229,11 +229,11 @@ mod tests {
 
     #[test]
     fn entity_kind() {
-        assert_eq!(Sut::entity_kind(), Cap26EntityKind::Account);
+        assert_eq!(Sut::entity_kind(), CAP26EntityKind::Account);
     }
 
     #[test]
     fn get_entity_kind() {
-        assert_eq!(Sut::sample().get_entity_kind(), Cap26EntityKind::Account);
+        assert_eq!(Sut::sample().get_entity_kind(), CAP26EntityKind::Account);
     }
 }
