@@ -42,8 +42,8 @@ pub(super) const BIP44_CHANGE: HDPathComponent = unsafe { unhard(0) };
 
 pub(super) fn cap26(
     network_id: NetworkID,
-    entity_kind: CAP26EntityKind,
-    key_kind: CAP26KeyKind,
+    entity_kind: Cap26EntityKind,
+    key_kind: Cap26KeyKind,
     index: Hardened,
 ) -> HDPath {
     let mut path: [HDPathComponent; 6] = [PURPOSE; 6];

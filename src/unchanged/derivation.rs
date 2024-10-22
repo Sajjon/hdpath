@@ -121,7 +121,7 @@ impl FactorSourceIDFromHash {
     ) -> String {
         let mnemonic = Mnemonic::from_str(mnemonic.as_ref()).unwrap();
         let seed = mnemonic.to_bip39_seed(passphrase.as_ref());
-        let private_key = seed.derive_ed25519_private_key(CAP26GetIDPath);
+        let private_key = seed.derive_ed25519_private_key(Cap26GetIDPath);
         let public_key_bytes = private_key.public_key().to_bytes();
         let hash = blake2b_256_hash(public_key_bytes);
         hex::encode(hash)
@@ -180,7 +180,7 @@ mod tests {
 
     #[test]
     fn derivation_kisharnet_account() {
-        test_assert_key_hexes::<CAP26AccountPath>(
+        test_assert_key_hexes::<Cap26AccountPath>(
             "equip will roof matter pink blind book anxiety banner elbow sun young",
             "m/44H/1022H/12H/525H/1460H/0H",
             "13e971fb16cb2c816d6b9f12176e9b8ab9af1831d006114d344d119ab2715506",
@@ -190,7 +190,7 @@ mod tests {
 
     #[test]
     fn derivation_mainnet_account() {
-        test_assert_key_hexes::<CAP26AccountPath>(
+        test_assert_key_hexes::<Cap26AccountPath>(
             "device phone sign source sample device sample device sample device sample device sample device sample device sample device phone sign source sample device swim", 
             "m/44H/1022H/1H/525H/1460H/0H", 
                 "88ec4649da764965f862510dbe53d551a3fc2da49e1ef1f383d9d17006773bee",
@@ -258,19 +258,19 @@ mod tests_secp256k1 {
 
     #[test]
     fn bip44() {
-        test_assert_key_hexes::<BIP44LikePath>("pledge rely stick hard snow ice sign source sample pledge rely sample pledge rely sample pledge rely sample pledge rely sample stick sample cactus", "m/44H/1022H/0H/0/5H", "09c5ec59b0cc08d07e5ed4aaee8c583264ffa060563d4b531e15db13d35b2a87", "038c9ae8b50356cfd87b6e8c069c14cbda692578e87cd41291701947a2d1b794c4");
+        test_assert_key_hexes::<Bip44LikePath>("pledge rely stick hard snow ice sign source sample pledge rely sample pledge rely sample pledge rely sample pledge rely sample stick sample cactus", "m/44H/1022H/0H/0/5H", "09c5ec59b0cc08d07e5ed4aaee8c583264ffa060563d4b531e15db13d35b2a87", "038c9ae8b50356cfd87b6e8c069c14cbda692578e87cd41291701947a2d1b794c4");
     }
 
     #[test]
     fn bip44_strict_bip44_equip() {
-        test_assert_key_hexes::<BIP44LikePath>(
+        test_assert_key_hexes::<Bip44LikePath>(
             "equip will roof matter pink blind book anxiety banner elbow sun young",
             "m/44H/1022H/0H/0/0",
             "623048f7bb88a4d162442b88cdd80c85e4d5933ad9e78523a97de769badb9ab2",
             "03bc2ec8f3668c869577bf66b7b48f8dee57b833916aa70966fa4a5029b63bb18f",
         );
 
-        test_assert_key_hexes::<BIP44LikePath>(
+        test_assert_key_hexes::<Bip44LikePath>(
             "equip will roof matter pink blind book anxiety banner elbow sun young",
             "m/44H/1022H/0H/0/1",
             "e94b6a64f99a1a143ed570bea9cf896ce82d14f861d0103066e835822037fe6b",

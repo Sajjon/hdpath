@@ -169,16 +169,16 @@ impl From<NetworkID> for HDPathComponent {
     }
 }
 
-impl From<CAP26EntityKind> for HDPathComponent {
-    fn from(value: CAP26EntityKind) -> Self {
+impl From<Cap26EntityKind> for HDPathComponent {
+    fn from(value: Cap26EntityKind) -> Self {
         HDPathComponent::unsecurified_hardened(value.discriminant())
-            .expect("CAP26EntityKind values are small so always fit inside U30")
+            .expect("Cap26EntityKind values are small so always fit inside U30")
     }
 }
-impl From<CAP26KeyKind> for HDPathComponent {
-    fn from(value: CAP26KeyKind) -> Self {
+impl From<Cap26KeyKind> for HDPathComponent {
+    fn from(value: Cap26KeyKind) -> Self {
         HDPathComponent::unsecurified_hardened(value.discriminant())
-            .expect("CAP26KeyKind values are small so always fit inside U30")
+            .expect("Cap26KeyKind values are small so always fit inside U30")
     }
 }
 

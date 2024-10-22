@@ -2,7 +2,7 @@ use serde_repr::{Deserialize_repr, Serialize_repr};
 
 use crate::prelude::*;
 
-/// Account or Identity (used by Personas) part of a CAP26 derivation
+/// Account or Identity (used by Personas) part of a Cap26 derivation
 /// path.
 #[derive(
     Serialize_repr,
@@ -19,7 +19,7 @@ use crate::prelude::*;
     derive_more::Debug,
 )]
 #[repr(u32)]
-pub enum CAP26EntityKind {
+pub enum Cap26EntityKind {
     /// An Account entity type
     #[display("Account")]
     Account = 525,
@@ -29,14 +29,14 @@ pub enum CAP26EntityKind {
     Identity = 618,
 }
 
-impl CAP26EntityKind {
+impl Cap26EntityKind {
     /// The raw representation of this entity kind, an `HDPathValue`.
     pub fn discriminant(&self) -> u32 {
         *self as u32
     }
 }
 
-impl TryFrom<U31> for CAP26EntityKind {
+impl TryFrom<U31> for Cap26EntityKind {
     type Error = CommonError;
     fn try_from(value: U31) -> Result<Self> {
         let value = u32::from(value);

@@ -14,16 +14,16 @@ use crate::prelude::*;
 )]
 #[display("{}", self.to_bip32_string())]
 #[debug("{}", self.to_bip32_string_debug())]
-pub struct BIP44LikePath {
+pub struct Bip44LikePath {
     index: HDPathComponent,
 }
-impl BIP44LikePath {
+impl Bip44LikePath {
     pub fn new(index: HDPathComponent) -> Self {
         Self { index }
     }
 }
 
-impl HasSampleValues for BIP44LikePath {
+impl HasSampleValues for Bip44LikePath {
     fn sample() -> Self {
         Self::new(HDPathComponent::Unsecurified(Unsecurified::Unhardened(
             Unhardened::from_local_key_space(0u32).unwrap(),
@@ -36,19 +36,19 @@ impl HasSampleValues for BIP44LikePath {
     }
 }
 
-impl BIP44LikePath {
+impl Bip44LikePath {
     pub fn to_hd_path(&self) -> HDPath {
         bip44(self.index)
     }
 }
 
-impl From<BIP44LikePath> for HDPath {
-    fn from(path: BIP44LikePath) -> Self {
+impl From<Bip44LikePath> for HDPath {
+    fn from(path: Bip44LikePath) -> Self {
         path.to_hd_path()
     }
 }
 
-impl TryFrom<HDPath> for BIP44LikePath {
+impl TryFrom<HDPath> for Bip44LikePath {
     type Error = CommonError;
     fn try_from(path: HDPath) -> Result<Self> {
         let components = path.components();
@@ -64,12 +64,12 @@ impl TryFrom<HDPath> for BIP44LikePath {
         }
         let bip44_account = components[2];
         if bip44_account.is_unhardened() {
-            return Err(CommonError::InvalidBIP44ExpectedAccountComponentToBeHardened);
+            return Err(CommonError::InvalidBip44ExpectedAccountComponentToBeHardened);
         }
         let bip44_change = components[3];
 
         if bip44_change.is_hardened() {
-            return Err(CommonError::InvalidBIP44ExpectedChangeComponentToNotBeHardened);
+            return Err(CommonError::InvalidBip44ExpectedChangeComponentToNotBeHardened);
         }
 
         let index = components[4];
@@ -78,7 +78,7 @@ impl TryFrom<HDPath> for BIP44LikePath {
     }
 }
 
-impl ToBIP32Str for BIP44LikePath {
+impl ToBIP32Str for Bip44LikePath {
     fn to_bip32_string(&self) -> String {
         self.to_hd_path().to_bip32_string()
     }
@@ -86,12 +86,12 @@ impl ToBIP32Str for BIP44LikePath {
         self.to_hd_path().to_bip32_string_debug()
     }
 }
-impl FromBIP32Str for BIP44LikePath {
+impl FromBIP32Str for Bip44LikePath {
     fn from_bip32_string(s: impl AsRef<str>) -> Result<Self> {
         HDPath::from_bip32_string(s).and_then(Self::try_from)
     }
 }
-impl FromStr for BIP44LikePath {
+impl FromStr for Bip44LikePath {
     type Err = CommonError;
 
     fn from_str(s: &str) -> Result<Self> {
@@ -105,7 +105,7 @@ mod tests {
 
     use super::*;
 
-    type Sut = BIP44LikePath;
+    type Sut = Bip44LikePath;
 
     #[test]
     fn equality() {

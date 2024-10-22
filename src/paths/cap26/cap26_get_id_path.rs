@@ -3,24 +3,24 @@ use crate::prelude::*;
 #[derive(Clone, Default, MoreDebug, derive_more::Display)]
 #[display("{}", self.to_bip32_string())]
 #[debug("{}", self.to_bip32_string_debug())]
-pub struct CAP26GetIDPath;
+pub struct Cap26GetIDPath;
 
-impl CAP26GetIDPath {
+impl Cap26GetIDPath {
     pub const PATH: [HDPathComponent; 3] = [PURPOSE, COIN_TYPE, GET_ID_LAST];
 }
 
-impl From<CAP26GetIDPath> for HDPath {
-    fn from(_: CAP26GetIDPath) -> Self {
-        Self::new(Vec::from_iter(CAP26GetIDPath::PATH))
+impl From<Cap26GetIDPath> for HDPath {
+    fn from(_: Cap26GetIDPath) -> Self {
+        Self::new(Vec::from_iter(Cap26GetIDPath::PATH))
     }
 }
-impl CAP26GetIDPath {
+impl Cap26GetIDPath {
     pub fn to_hd_path(&self) -> HDPath {
         HDPath::from(self.clone())
     }
 }
 
-impl ToBIP32Str for CAP26GetIDPath {
+impl ToBIP32Str for Cap26GetIDPath {
     fn to_bip32_string(&self) -> String {
         self.to_hd_path().to_bip32_string()
     }
@@ -43,7 +43,7 @@ mod tests {
 
     use super::*;
 
-    type Sut = CAP26GetIDPath;
+    type Sut = Cap26GetIDPath;
 
     #[test]
     fn display() {
