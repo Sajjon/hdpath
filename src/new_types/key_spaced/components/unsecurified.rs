@@ -1,5 +1,31 @@
 use crate::prelude::*;
 
+/// Represents an "unsecurified" component in a BIP32 path, known to be unhardened or hardened. If it is hardened we will add `GLOBAL_OFFSET_HARDENED` to it when mapped to global key space.
+///
+/// The internal representation holds wither a `Unhardened` (`U31`) or a `UnsecurifiedHardened` (`U30`).
+///
+/// # Examples
+/// ```
+/// extern crate hdpath;
+/// use hdpath::prelude::*;
+///
+/// assert_eq!(
+///     Unsecurified::from_global_key_space(1).unwrap(),
+///     Unsecurified::Unhardened(Unhardened::ONE)
+/// );
+///
+/// assert_eq!(
+///     Unsecurified::from_global_key_space(2 + GLOBAL_OFFSET_HARDENED).unwrap(),
+///     Unsecurified::Hardened(UnsecurifiedHardened::TWO)
+/// );
+///
+/// assert!(
+///   matches!(
+///     Unsecurified::from_global_key_space(3 + GLOBAL_OFFSET_HARDENED_SECURIFIED),
+///     Err(CommonError::Overflow)
+///  )
+/// );
+/// ```
 #[derive(
     Clone,
     Copy,

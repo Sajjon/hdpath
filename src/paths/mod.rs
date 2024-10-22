@@ -31,9 +31,7 @@ const unsafe fn hard(value: u16) -> HDPathComponent {
 ///
 /// Only use this for tests and constants.
 const unsafe fn unhard(value: u16) -> HDPathComponent {
-    unsafe {
-        HDPathComponent::Unsecurified(Unsecurified::Unhardened(Unhardened::new(U31::new(value))))
-    }
+    HDPathComponent::Unsecurified(Unsecurified::Unhardened(Unhardened::new(U31::new(value))))
 }
 
 pub(super) const PURPOSE: HDPathComponent = unsafe { hard(44) };

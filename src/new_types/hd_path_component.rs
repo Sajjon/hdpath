@@ -1,11 +1,35 @@
 use crate::prelude::*;
 
+/// A component for a BIP32 hd path, mappable into a `u32`. Retains information about the creating context, if this component is securified or not. And if it is not securified it is hardened or not.
+///
+///
 /// ```ignore
 /// [ <<------- UNHARDENED ------->> | <<-------- HARDENED --------->> ]
 /// [ <<------------ UNSECURIFIED ---|-------->>  | <<- SECURIFIED ->> ]
 /// ^                                ^            ^                    ^
 /// 0                              2^31       2^31+2^30          2^32+1
 ///
+/// ```
+///
+/// # Examples
+/// ```
+/// extern crate hdpath;
+/// use hdpath::prelude::*;
+///
+/// assert_eq!(
+///     HDPathComponent::from_global_key_space(0).unwrap(),
+///     HDPathComponent::Unsecurified(Unsecurified::Unhardened(Unhardened::ZERO))
+/// );
+///
+/// assert_eq!(
+///     HDPathComponent::from_global_key_space(1 + GLOBAL_OFFSET_HARDENED).unwrap(),
+///     HDPathComponent::Unsecurified(Unsecurified::Hardened(UnsecurifiedHardened::ONE))
+/// );
+///
+/// assert_eq!(
+///     HDPathComponent::from_global_key_space(2 + GLOBAL_OFFSET_HARDENED_SECURIFIED).unwrap(),
+///     HDPathComponent::Securified(SecurifiedU30::TWO)
+/// );
 /// ```
 #[derive(
     Clone,

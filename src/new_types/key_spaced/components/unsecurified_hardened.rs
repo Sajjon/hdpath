@@ -1,5 +1,31 @@
 use crate::prelude::*;
 
+/// Represents a hardened component in a BIP32 path, furthermore it is
+/// known to not be "Securified".
+///
+/// The internal representation hold a non-hardened, so called "local" offset, and at the time of usage, when forming a BIP32 path, we "map" it to a global offset by adding the `GLOBAL_OFFSET_HARDENED`.
+/// # Examples
+/// ```
+/// extern crate hdpath;
+/// use hdpath::prelude::*;
+///
+/// assert_eq!(
+///   UnsecurifiedHardened::from_global_key_space(42 + GLOBAL_OFFSET_HARDENED).unwrap().index_in_local_key_space(),
+///   U31::new(42)
+/// );
+///
+/// assert_eq!(
+///   UnsecurifiedHardened::from_local_key_space(5u32).unwrap().map_to_global_key_space(),
+///   5 + GLOBAL_OFFSET_HARDENED
+/// );
+///
+/// assert!(
+///   matches!(
+///     UnsecurifiedHardened::from_global_key_space(3),
+///     Err(CommonError::IndexInGlobalKeySpaceIsLowerThanOffset)
+///  )
+/// );
+/// ```
 #[derive(
     Clone,
     Copy,
@@ -251,7 +277,10 @@ mod tests {
 
     #[test]
     fn from_global_invalid() {
-        assert!(Sut::from_global_key_space(0).is_err());
+        assert!(matches!(
+            Sut::from_global_key_space(0),
+            Err(CommonError::IndexInGlobalKeySpaceIsLowerThanOffset)
+        ));
         assert!(Sut::from_global_key_space(GLOBAL_OFFSET_HARDENED - 1).is_err());
     }
 

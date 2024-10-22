@@ -1,5 +1,35 @@
 use crate::prelude::*;
 
+/// Represents an unhardened component in a BIP32 path.
+///
+/// Represented internally using a U31.
+/// # Examples
+/// ```
+/// extern crate hdpath;
+/// use hdpath::prelude::*;
+///
+/// assert_eq!(
+///     Unhardened::from_local_key_space(0u32).unwrap().map_to_global_key_space(),
+///     0
+/// );
+///
+/// assert_eq!(
+///     Unhardened::from_global_key_space(1u32).unwrap().map_to_global_key_space(),
+///     1
+/// );
+///
+/// assert_eq!(
+///     Unhardened::from_global_key_space(2u32).unwrap().index_in_local_key_space(),
+///     U31::from(2)
+/// );
+///
+/// assert!(
+///   matches!(
+///     Unhardened::from_global_key_space(7 + GLOBAL_OFFSET_HARDENED),
+///     Err(CommonError::Overflow)
+///  )
+/// );
+/// ```
 #[derive(
     Clone,
     Copy,
@@ -20,11 +50,7 @@ use crate::prelude::*;
 pub struct Unhardened(U31);
 
 impl Unhardened {
-    /// # Safety
-    /// Unsafe, does not validate the value to be small enough.
-    ///
-    /// Only use this for tests and constants.
-    pub(crate) const unsafe fn new(value: U31) -> Self {
+    pub(crate) const fn new(value: U31) -> Self {
         Self(value)
     }
 }
@@ -219,7 +245,10 @@ mod tests {
 
     #[test]
     fn from_global_invalid() {
-        assert!(Sut::from_global_key_space(GLOBAL_OFFSET_HARDENED).is_err());
+        assert!(matches!(
+            Sut::from_global_key_space(GLOBAL_OFFSET_HARDENED),
+            Err(CommonError::Overflow)
+        ));
     }
 
     #[test]
