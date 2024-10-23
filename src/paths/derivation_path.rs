@@ -143,7 +143,7 @@ mod tests {
     }
 
     #[test]
-    fn string_roundtrip_account_from_CAP26() {
+    fn string_roundtrip_account_from_cap26() {
         let sut = Sut::Account {
             value: CAP26AccountPath::sample(),
         };
@@ -161,7 +161,7 @@ mod tests {
     }
 
     #[test]
-    fn string_roundtrip_identity_from_CAP26() {
+    fn string_roundtrip_identity_from_cap26() {
         let sut = Sut::Identity {
             value: CAP26IdentityPath::sample(),
         };
@@ -171,7 +171,7 @@ mod tests {
     }
 
     #[test]
-    fn string_roundtrip_BIP44_from_BIP44() {
+    fn string_roundtrip_bip44_from_bip44() {
         let value = BIP44LikePath::sample();
         let s = value.to_bip32_string();
         let path2 = Sut::from_bip32_string(&s).unwrap();
@@ -179,7 +179,7 @@ mod tests {
     }
 
     #[test]
-    fn string_roundtrip_getid_from_CAP26() {
+    fn string_roundtrip_getid_from_cap26() {
         let sut = Sut::BIP44Like {
             value: BIP44LikePath::sample(),
         };

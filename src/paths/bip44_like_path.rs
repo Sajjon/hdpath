@@ -38,7 +38,7 @@ impl HasSampleValues for BIP44LikePath {
 
 impl BIP44LikePath {
     pub fn to_hd_path(&self) -> HDPath {
-        BIP44(self.index)
+        bip44(self.index)
     }
 }
 
@@ -62,13 +62,13 @@ impl TryFrom<HDPath> for BIP44LikePath {
         if components[1] != COIN_TYPE {
             return Err(CommonError::InvalidCoinType);
         }
-        let BIP44_account = components[2];
-        if BIP44_account.is_unhardened() {
+        let bip44_account = components[2];
+        if bip44_account.is_unhardened() {
             return Err(CommonError::InvalidBIP44ExpectedAccountComponentToBeHardened);
         }
-        let BIP44_change = components[3];
+        let bip44_change = components[3];
 
-        if BIP44_change.is_hardened() {
+        if bip44_change.is_hardened() {
             return Err(CommonError::InvalidBIP44ExpectedChangeComponentToNotBeHardened);
         }
 

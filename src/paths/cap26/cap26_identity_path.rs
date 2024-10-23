@@ -78,7 +78,7 @@ impl From<CAP26IdentityPath> for HDPath {
 
 impl CAP26IdentityPath {
     pub fn to_hd_path(&self) -> HDPath {
-        CAP26(
+        cap26(
             self.network_id,
             Self::entity_kind(),
             self.key_kind,

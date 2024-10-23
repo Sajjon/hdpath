@@ -257,12 +257,12 @@ mod tests_secp256k1 {
     }
 
     #[test]
-    fn BIP44() {
+    fn bip44() {
         test_assert_key_hexes::<BIP44LikePath>("pledge rely stick hard snow ice sign source sample pledge rely sample pledge rely sample pledge rely sample pledge rely sample stick sample cactus", "m/44H/1022H/0H/0/5H", "09c5ec59b0cc08d07e5ed4aaee8c583264ffa060563d4b531e15db13d35b2a87", "038c9ae8b50356cfd87b6e8c069c14cbda692578e87cd41291701947a2d1b794c4");
     }
 
     #[test]
-    fn BIP44_strict_BIP44_equip() {
+    fn bip44_strict_bip44_equip() {
         test_assert_key_hexes::<BIP44LikePath>(
             "equip will roof matter pink blind book anxiety banner elbow sun young",
             "m/44H/1022H/0H/0/0",
